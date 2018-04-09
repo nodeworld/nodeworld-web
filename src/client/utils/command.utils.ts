@@ -5,9 +5,9 @@ import * as VisitorActions from "../actions/visitor.actions";
 import { addMessage, clearMessages } from "../actions/log.actions";
 import { joinNode } from "../actions/node.actions";
 
-import { WebVisitor } from "../models/visitor.model";
+import { Visitor } from "../models/visitor.model";
 import { WebCommandContext, Command } from "../models/command.model";
-import { MessageType } from "../models/message.model";
+import { MessageType, buildMessage } from "../models/message.model";
 
 export interface CommandInfo {
     [key: string]: {
@@ -45,7 +45,7 @@ export const parseCommand = (raw: string): Command => {
 }
 
 export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> => {
-    const send = async (type: MessageType, content: string) => await ctx.dispatch(addMessage({ type, content } as any));
+    const send = async (type: MessageType, content: string) => await ctx.dispatch(addMessage(buildMessage({ type, content })));
 
     switch(ctx.command.name) {
         case "help":

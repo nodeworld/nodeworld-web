@@ -7,10 +7,10 @@ import { LoginForm } from "./login-form";
 import { setVisitor, setVisitorLogged } from "../../actions/visitor.actions";
 import { login } from "../../api/visitor.api";
 import { LoginData } from "../../models/auth.model";
-import { WebVisitor } from "../../models/visitor.model";
+import { Visitor } from "../../models/visitor.model";
 
 const mapDispatchToProps = (dispatch: any) => ({
-    setVisitor: (visitor: WebVisitor) => dispatch(setVisitor(visitor)),
+    setVisitor: (visitor: Visitor) => dispatch(setVisitor(visitor)),
     setVisitorLogged: (logged: boolean) => dispatch(setVisitorLogged(logged))
 });
 

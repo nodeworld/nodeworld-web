@@ -68,3 +68,9 @@ dist
 
 # TypeORM Configuration
 ormconfig.json
+
+# Docker
+Dockerfile
+.dockerignore
+
+Icon?

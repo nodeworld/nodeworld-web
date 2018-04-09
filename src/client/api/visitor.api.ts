@@ -1,10 +1,10 @@
-import { WebVisitor } from "../models/visitor.model";
+import { Visitor } from "../models/visitor.model";
 import { LoginData } from "../models/auth.model";
+import { API_Error } from "../models/server.models";
 
-import { mapVisitorToWeb } from "../utils/mapping.utils";
 declare const API_ENDPOINT: string;
 
-export const register = async (login: LoginData): Promise<WebVisitor> => {
+export const register = async (login: LoginData): Promise<Visitor> => {
     const data = await fetch(`${API_ENDPOINT}/visitors`, {
         method: "POST",
         credentials: "include",
@@ -13,11 +13,11 @@ export const register = async (login: LoginData): Promise<WebVisitor> => {
         },
         body: JSON.stringify(login)
     });
-    const response = await data.json();
-    return mapVisitorToWeb(response);
+    if(!data.ok) throw await data.json() as API_Error;
+    return await data.json();
 }
 
-export const login = async (login: LoginData): Promise<WebVisitor> => {
+export const login = async (login: LoginData): Promise<Visitor> => {
     const data = await fetch(`${API_ENDPOINT}/visitors/login`, {
         method: "POST",
         credentials: "include",
@@ -26,19 +26,20 @@ export const login = async (login: LoginData): Promise<WebVisitor> => {
         },
         body: JSON.stringify(login)
     });
-    const response = await data.json();
-    return mapVisitorToWeb(response);
+    if(!data.ok) throw await data.json() as API_Error;
+    return await data.json();
 }
 
 export const logout = async (): Promise<null> => {
-    const data = await fetch(`${API_ENDPOINT}/visitors/logout`, { credentials: "same-origin" });
+    const data = await fetch(`${API_ENDPOINT}/visitors/logout`, { credentials: "include" });
+    if(!data.ok) throw await data.json();
     return null;
 }
 
-export const me = async (): Promise<WebVisitor> => {
+export const me = async (): Promise<Visitor> => {
     const data = await fetch(`${API_ENDPOINT}/visitors/me`, {
         credentials: "include"
     });
-    const response = await data.json();
-    return mapVisitorToWeb(response);
+    if(!data.ok) throw await data.json() as API_Error;
+    return await data.json();
 }

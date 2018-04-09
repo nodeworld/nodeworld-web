@@ -4,8 +4,8 @@ import * as NodeAPI from "../api/node.api";
 
 import { runLocalCommand } from "../utils/command.utils";
 
-import { WebVisitor } from "../models/visitor.model";
-import { WebMessage, MessageType } from "../models/message.model";
+import { Visitor } from "../models/visitor.model";
+import { Message, MessageType, buildMessage } from "../models/message.model";
 import { Command } from "../models/command.model";
 
 import { parseCommand } from "../utils/command.utils";
@@ -20,7 +20,7 @@ export enum LogActionType {
 
 export interface AddMessageAction {
     type: LogActionType.AddMessage;
-    message: WebMessage;
+    message: Message;
 }
 
 export interface ClearMessagesAction {
@@ -32,12 +32,10 @@ export interface AddMessageErrorAction {
     message: string;
 }
 
-export const addMessage = (message: WebMessage): AddMessageAction => ({
+export const addMessage = (message: Message): AddMessageAction => ({
     type: LogActionType.AddMessage,
     message: {
         ...message,
-        id: message.id ? message.id : uuidv1(),
-        sent_at: message.sent_at ? message.sent_at : new Date().toISOString()
     }
 });
 
@@ -53,7 +51,7 @@ export const sendMessage = (type: MessageType, content: string) => {
         try {
             const node_id = getState()["node"]["node"]["id"];
             const message = await NodeAPI.sendMessage(node_id, type, content);
-            dispatch(addMessage(message));
+            dispatch(addMessage(buildMessage(message)));
         } catch(e) {
             console.error(e);
         }
@@ -70,12 +68,12 @@ export const sendCommand = (content: string) => {
                 const me_action = command.args.join(" ");
                 await dispatch(sendMessage(MessageType.ACTION, me_action));
             } else {
-                await dispatch(addMessage({ type: MessageType.ACTION, name: visitor.name, content } as any));
+                await dispatch(addMessage(buildMessage({ type: MessageType.ACTION, name: visitor.name, content })));
                 const local_success = await runLocalCommand({ dispatch, visitor, command });
                 if(!local_success)
                     await NodeAPI.runCommand(node["id"], command);
             }
-        } catch(e) { console.error(e); }
+        } catch(e) { await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: `Error: ${e.errors.message}` }))); }
     }
 }
 
@@ -85,16 +83,6 @@ export const addRecentMessages = () => {
             const node_id = getState()["node"]["node"]["id"];
             const messages = await NodeAPI.getMessages(node_id);
             messages.forEach(message => dispatch(addMessage(message)));
-        } catch(e) { console.error(e); }
-    }
-}
-
-export const sendNodeGreeting = () => {
-    return async (dispatch: Function, getState: Function) => {
-        try {
-            const node = getState()["node"]["node"];
-            await dispatch(addMessage({ type: MessageType.SYSTEM, content: `Joined ${node["name"]}` } as any));
-            await dispatch(addMessage({ type: MessageType.SYSTEM, content: `"${node["greeting"]}"` } as any));
         } catch(e) { console.error(e); }
     }
 }

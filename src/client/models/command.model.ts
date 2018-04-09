@@ -1,9 +1,9 @@
-import { WebVisitor } from "./visitor.model";
+import { Visitor } from "./visitor.model";
 
 export interface WebCommandContext {
     command: Command;
     dispatch: Function;
-    visitor: WebVisitor
+    visitor: Visitor
 }
 
 export interface Command {

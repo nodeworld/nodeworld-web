@@ -4,8 +4,8 @@ import * as moment from "moment";
 import { MessageType } from "../../models/message.model";
 
 export interface NodeMessageProps {
-    author: string;
     type: MessageType;
+    author: string | null;
     name: string | null;
     content: string;
     sent_at: string;

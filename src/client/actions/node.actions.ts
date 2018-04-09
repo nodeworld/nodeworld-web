@@ -1,7 +1,8 @@
 import { Map } from "immutable";
 
 import * as NodeApi from "../api/node.api";
-import { WebNode } from "../models/node.model";
+import { Node } from "../models/node.model";
+import { manageLiveNodeConnection } from "../utils/live.utils";
 
 export type NodeAction = SetNodeAction | SetNodeErrorAction;
 
@@ -12,7 +13,7 @@ export enum NodeActionType {
 
 export interface SetNodeAction {
     type: NodeActionType.SetNode,
-    node: WebNode
+    node: Node
 }
 
 export interface SetNodeErrorAction {
@@ -20,7 +21,7 @@ export interface SetNodeErrorAction {
     message: string
 }
 
-export const setNode = (node: WebNode): SetNodeAction => ({
+export const setNode = (node: Node): SetNodeAction => ({
     type: NodeActionType.SetNode,
     node
 });
@@ -33,7 +34,9 @@ export const setNodeError = (message: string): SetNodeErrorAction => ({
 export const joinNode = (name: string) => {
     return async (dispatch: any) => {
         try {
+            console.log("Joining node " + name);
             const node = await NodeApi.getNode(name);
+            NodeApi.joinNode(name);
             dispatch(setNode(node));
         } catch(err) {
             setTimeout(() => joinNode("main"), 1000);

@@ -1,11 +1,11 @@
 import { NodeAction, NodeActionType } from "../actions/node.actions";
 
-import { WebNode } from "../models/node.model";
+import { Node } from "../models/node.model";
 
 const initialState = { node: null };
 
 export interface NodeReducerState {
-    node: WebNode | null;
+    node: Node | null;
 }
 
 export const NodeReducer = (state: NodeReducerState, action: NodeAction) => {

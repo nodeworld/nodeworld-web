@@ -10,7 +10,7 @@ import { NodeLog } from "./node-log";
 import { NodeInput } from "./node-input";
 import { NodeMessage } from "./node-message";
 
-import { WebMessage, MessageType } from "../../models/message.model"; 
+import { MessageType } from "../../models/message.model"; 
 
 const mapStateToProps = (state: any) => ({
     node: state.node,
@@ -22,8 +22,7 @@ const mapDispatchToProps = (dispatch: any) => ({
     sendMessage: (type: MessageType, content: string) => dispatch(LogActions.sendMessage(type, content)),
     sendCommand: (content: string) => dispatch(LogActions.sendCommand(content)),
     getMessages: () => dispatch(LogActions.addRecentMessages()),
-    sendGreeting: () => dispatch(LogActions.sendNodeGreeting()),
-    getNode: (name: string) => dispatch(NodeActions.joinNode(name))
+    joinNode: (name: string) => dispatch(NodeActions.joinNode(name))
 });
 
 class NodeContainer extends React.Component {
@@ -35,9 +34,8 @@ class NodeContainer extends React.Component {
     async componentWillUpdate(nextProps: any) {
         if(nextProps.node && nextProps.node !== (this.props as any).node) {
             const node = nextProps.node;
-            const { sendGreeting, getMessages } = this.props as any;
+            const { getMessages } = this.props as any;
             await getMessages();
-            await sendGreeting();
         }
     }
 
@@ -46,8 +44,8 @@ class NodeContainer extends React.Component {
         const pathName = (this.props as any).location.pathname;
         if((!nodeName && pathName !== "/") || nodeName === "main")
             (this.props as any).history.push("/");
-        const { getNode } = this.props as any;
-        getNode(nodeName ? nodeName : "main");
+        const { joinNode } = this.props as any;
+        joinNode(nodeName ? nodeName : "main");
     }
 
     async resolveMessage(message: string) {

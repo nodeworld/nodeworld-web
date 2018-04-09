@@ -1,10 +1,10 @@
 import { LogAction, LogActionType } from "../actions/log.actions";
-import { WebMessage } from "../models/message.model";
+import { Message } from "../models/message.model";
 
 const initialState = { messages: [] };
 
 export interface LogReducerState {
-    messages: Array<WebMessage>;
+    messages: Array<Message>;
 }
 
 export const LogReducer = (state: LogReducerState, action: LogAction) => {

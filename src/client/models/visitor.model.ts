@@ -1,12 +1,5 @@
 export interface Visitor {
+    id: string;
     name: string;
     email?: string;
-}
-
-export interface ServerVisitor extends Visitor {
-    visitor_id: string;
-}
-
-export interface WebVisitor extends Visitor {
-    id: string;
 }

@@ -2,11 +2,11 @@ import * as React from "react";
 
 import { connect } from "react-redux";
 
-import { WebMessage } from "../../models/message.model";
+import { Message } from "../../models/message.model";
 import { NodeMessage } from "./node-message";
 
 export interface NodeLogProps {
-    messages: Array<WebMessage>;
+    messages: Array<Message>;
 }
 
 class NodeLog extends React.Component<NodeLogProps, {}> {
@@ -24,11 +24,11 @@ class NodeLog extends React.Component<NodeLogProps, {}> {
 
     render() {
         const { messages } = this.props;
-        const message_list = messages && messages.map((message:WebMessage) => 
+        const message_list = messages && messages.map((message:Message) => 
             <NodeMessage
             key={message.id}
             type={message.type}
-            author={message.author}
+            author={message.author_id}
             name={message.name}
             content={message.content}
             sent_at={message.sent_at}/>

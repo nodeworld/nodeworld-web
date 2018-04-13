@@ -40,7 +40,7 @@ class NodeInput extends React.Component<NodeInputProps, {}> {
                         </form>
                     </React.Fragment>
                 ) : (
-                    <div className="node-input-status">Log in at <Link to="/login">/login</Link></div>
+                    <div className="node-input-status">Log in at <Link to="/login">/login</Link> or register at <Link to="/register">/register</Link></div>
                 )}
             </div>
         );

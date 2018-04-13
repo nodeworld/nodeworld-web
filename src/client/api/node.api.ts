@@ -11,6 +11,8 @@ import { store } from "../store";
 declare const API_ENDPOINT: string;
 declare const LIVE_ENDPOINT: string;
 
+let socket: SocketIOClient.Socket;
+
 export const getNode = async (name: string): Promise<Node> => {
     const data = await fetch(`${API_ENDPOINT}/nodes?name=${name}&limit=1`);
     if(!data.ok) throw await data.json() as API_Error;
@@ -20,7 +22,8 @@ export const getNode = async (name: string): Promise<Node> => {
 
 export const joinNode = (name: string): void => {
     if(!(store.getState() as any).visitor.visitor) return;
-    const socket = io(LIVE_ENDPOINT, { path: "/live", query: { node: name }});
+    if(!socket)
+        socket = io(LIVE_ENDPOINT, { path: "/live", query: { node: name }});
     socket.on("connect", () => manageLiveNodeConnection(socket, store.dispatch));
 }
 

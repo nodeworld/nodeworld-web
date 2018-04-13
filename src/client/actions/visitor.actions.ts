@@ -47,8 +47,8 @@ export const logOutVisitor = () => {
     return async (dispatch: Function) => {
         try {
             await VisitorAPI.logout();
-            await dispatch(setVisitor(null));
             await dispatch(setVisitorLogged(false));
+            await dispatch(setVisitor(null));
         } catch(e) { console.error(e); }
     }
 }

@@ -3,6 +3,7 @@ import { Map } from "immutable";
 import * as NodeApi from "../api/node.api";
 import { Node } from "../models/node.model";
 import { manageLiveNodeConnection } from "../utils/live.utils";
+import { clearMessages } from "./log.actions";
 
 export type NodeAction = SetNodeAction | SetNodeErrorAction;
 
@@ -37,6 +38,7 @@ export const joinNode = (name: string) => {
             console.log("Joining node " + name);
             const node = await NodeApi.getNode(name);
             NodeApi.joinNode(name);
+            dispatch(clearMessages());
             dispatch(setNode(node));
         } catch(err) {
             setTimeout(() => joinNode("main"), 1000);

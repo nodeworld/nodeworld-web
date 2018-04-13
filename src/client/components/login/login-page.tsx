@@ -14,10 +14,23 @@ const mapDispatchToProps = (dispatch: any) => ({
     setVisitorLogged: (logged: boolean) => dispatch(setVisitorLogged(logged))
 });
 
-class LoginPage extends React.Component {
+const mapStateToProps = (state: any) => ({
+    visitor: state.visitor
+});
+
+export interface LoginPageState {
+    visitor: { logged: boolean, visitor: Visitor | null }
+}
+
+class LoginPage extends React.Component<LoginPageState> {
     constructor(props: any) {
         super(props);
         this.onSubmit = this.onSubmit.bind(this);
+    }
+
+    componentWillMount() {
+        if(this.props.visitor.logged)
+            (this.props as any).history.goBack();
     }
 
     async onSubmit(data: LoginData) {
@@ -42,6 +55,6 @@ class LoginPage extends React.Component {
     }
 }
 
-const MappedLoginPage = connect(() => ({}), mapDispatchToProps)(LoginPage as any);
+const MappedLoginPage = connect(mapStateToProps, mapDispatchToProps)(LoginPage as any);
 
 export { MappedLoginPage as LoginPage };

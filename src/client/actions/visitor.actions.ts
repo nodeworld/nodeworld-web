@@ -1,5 +1,3 @@
-import { Map } from "immutable";
-
 import * as VisitorAPI from "../api/visitor.api";
 
 import { Visitor } from "../models/visitor.model";

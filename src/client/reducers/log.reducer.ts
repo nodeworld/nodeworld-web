@@ -7,13 +7,13 @@ export interface LogReducerState {
     messages: Array<Message>;
 }
 
-export const LogReducer = (state: LogReducerState, action: LogAction) => {
+export const LogReducer = (state: LogReducerState = initialState, action: LogAction) => {
     switch(action.type) {
         case LogActionType.AddMessage:
             return Object.assign({}, state, { messages: [ ...state.messages, action.message ] });
         case LogActionType.ClearMessages:
             return initialState;
         default:
-            return state ? state : initialState;
+            return state;
     }
 }

@@ -8,7 +8,7 @@ export interface NodeReducerState {
     node: Node | null;
 }
 
-export const NodeReducer = (state: NodeReducerState, action: NodeAction) => {
+export const NodeReducer = (state: NodeReducerState = initialState, action: NodeAction) => {
     switch(action.type) {
         case NodeActionType.SetNode:
             return Object.assign({}, state, { node: action.node })
@@ -16,6 +16,6 @@ export const NodeReducer = (state: NodeReducerState, action: NodeAction) => {
             console.error(action.message);
             return state;
         default:
-            return state ? state : initialState;
+            return state;
     }
 }

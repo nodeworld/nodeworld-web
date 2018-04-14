@@ -1,13 +1,19 @@
 import { combineReducers } from "redux";
 
-import { LogReducer } from "./log.reducer";
-import { NodeReducer } from "./node.reducer";
-import { VisitorReducer } from "./visitor.reducer";
+import { LogReducer, LogReducerState } from "./log.reducer";
+import { NodeReducer, NodeReducerState } from "./node.reducer";
+import { VisitorReducer, VisitorReducerState } from "./visitor.reducer";
 
-const reducerTree = combineReducers({
-    node: NodeReducer as any,
-    log: LogReducer as any,
-    visitor: VisitorReducer as any
+export interface CombinedReducerState {
+    visitor: VisitorReducerState,
+    node: NodeReducerState,
+    log: LogReducerState
+}
+
+const reducerTree = combineReducers<CombinedReducerState>({
+    node: NodeReducer,
+    log: LogReducer,
+    visitor: VisitorReducer
 });
 
 export { reducerTree };

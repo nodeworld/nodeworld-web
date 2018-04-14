@@ -49,7 +49,7 @@ export const clearMessages = (): ClearMessagesAction => ({ type: LogActionType.C
 export const sendMessage = (type: MessageType, content: string) => {
     return async (dispatch: Function, getState: Function) => {
         try {
-            const node_id = getState()["node"]["node"]["id"];
+            const node_id = getState().node.node.id;
             const message = await NodeAPI.sendMessage(node_id, type, content);
             dispatch(addMessage(buildMessage(message)));
         } catch(e) {
@@ -61,8 +61,8 @@ export const sendMessage = (type: MessageType, content: string) => {
 export const sendCommand = (content: string) => {
     return async (dispatch: Function, getState: Function) => {
         try {
-            const visitor = getState()["visitor"]["visitor"];
-            const node = getState()["node"]["node"];
+            const visitor = getState().visitor.visitor;
+            const node = getState().node.node;
             const command = parseCommand(content);
             if(command.name === "me") {
                 const me_action = command.args.join(" ");
@@ -80,7 +80,7 @@ export const sendCommand = (content: string) => {
 export const addRecentMessages = () => {
     return async (dispatch: Function, getState: Function) => {
         try {
-            const node_id = getState()["node"]["node"]["id"];
+            const node_id = getState().node.node.id;
             const messages = await NodeAPI.getMessages(node_id);
             messages.forEach(message => dispatch(addMessage(message)));
         } catch(e) { console.error(e); }

@@ -8,13 +8,13 @@ export interface VisitorReducerState {
     visitor: Visitor | null
 }
 
-export const VisitorReducer = (state: VisitorReducerState, action: VisitorAction) => {
+export const VisitorReducer = (state: VisitorReducerState = initialState, action: VisitorAction) => {
     switch(action.type) {
         case VisitorActionType.SetVisitor:
             return Object.assign({}, state, { visitor: action.visitor });
         case VisitorActionType.SetVisitorLogged:
             return Object.assign({}, state, { logged: action.logged });
         default:
-            return state ? state : initialState;
+            return state;
     }
 }

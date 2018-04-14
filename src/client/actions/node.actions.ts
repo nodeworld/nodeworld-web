@@ -1,5 +1,3 @@
-import { Map } from "immutable";
-
 import * as NodeApi from "../api/node.api";
 import { Node } from "../models/node.model";
 import { manageLiveNodeConnection } from "../utils/live.utils";

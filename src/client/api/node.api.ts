@@ -1,17 +1,20 @@
 import * as io from "socket.io-client";
 
 import { Node } from "../models/node.model";
-import { Message, MessageType } from "../models/message.model";
+import { Message, MessageType, buildMessage } from "../models/message.model";
 import { Visitor } from "../models/visitor.model";
 import { Command } from "../models/command.model";
 import { API_Error } from "../models/server.models";
 import { manageLiveNodeConnection } from "../utils/live.utils";
 import { store } from "../store";
+import { addMessage } from "../actions/log.actions";
 
 declare const API_ENDPOINT: string;
 declare const LIVE_ENDPOINT: string;
 
 let socket: SocketIOClient.Socket;
+
+const system_send = (content: string) => store.dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content })));
 
 export const getNode = async (name: string): Promise<Node> => {
     const data = await fetch(`${API_ENDPOINT}/nodes?name=${name}&limit=1`);
@@ -21,9 +24,10 @@ export const getNode = async (name: string): Promise<Node> => {
 }
 
 export const joinNode = (name: string): void => {
-    if(!(store.getState() as any).visitor.visitor) return;
     if(!socket)
-        socket = io(LIVE_ENDPOINT, { path: "/live", query: { node: name }});
+        socket = io(LIVE_ENDPOINT, { path: "/live", query: { node: name }, reconnectionAttempts: 3 });
+    socket.on("connect_error", () => system_send("Failed to join node."));
+    socket.on("reconnect_attempt", (count: number) => system_send(`Retrying... (Attempt #${count})`));
     socket.on("connect", () => manageLiveNodeConnection(socket, store.dispatch));
 }
 

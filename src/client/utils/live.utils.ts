@@ -10,4 +10,13 @@ export const manageLiveNodeConnection = (socket: SocketIOClient.Socket, dispatch
         if(message.author_id === (store.getState() as any).visitor.visitor.id) return;
         dispatch(addMessage(buildMessage(message)));
     });
+
+    socket.on("disconnect", (reason: any) => {
+        const node = (store.getState() as any).node.node.name;
+        dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: `Left ${node}. Attempting to reconnect...` })));
+    });
+
+    socket.on("error", (err: any) => {
+        console.log(err);
+    });
 }

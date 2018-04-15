@@ -43,10 +43,12 @@ class NodeContainer extends React.Component<NodeContainerProps> {
         this.resolveMessage = this.resolveMessage.bind(this);
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         const nodeName = (this.props as any).match.params.node;
         if(nodeName)
             this.props.joinNode(nodeName);
+        else
+            await this.props.systemMessage("You are currently in space. To join a node, type /join [node]");
     }
 
     async resolveMessage(message: string) {
@@ -57,8 +59,7 @@ class NodeContainer extends React.Component<NodeContainerProps> {
             if(this.props.node.node) {
                 await sendMessage(MessageType.CHAT, message);
             } else {
-                await systemMessage("You are currently in space, you cannot talk in here.");
-                await systemMessage("To join a node, type /join [node]");
+                await systemMessage("You are currently in space. To join a node, type /join [node]");
             }
         }
     }

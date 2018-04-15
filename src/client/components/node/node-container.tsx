@@ -21,7 +21,6 @@ const mapStateToProps = (state: any) => ({
 const mapDispatchToProps = (dispatch: any) => ({
     sendMessage: (type: MessageType, content: string) => dispatch(LogActions.sendMessage(type, content)),
     sendCommand: (content: string) => dispatch(LogActions.sendCommand(content)),
-    getMessages: () => dispatch(LogActions.addRecentMessages()),
     joinNode: (name: string) => dispatch(NodeActions.joinNode(name))
 });
 
@@ -29,14 +28,6 @@ class NodeContainer extends React.Component {
     constructor(props: any) {
         super(props);
         this.resolveMessage = this.resolveMessage.bind(this);
-    }
-
-    async componentWillUpdate(nextProps: any) {
-        if(nextProps.node && nextProps.node !== (this.props as any).node) {
-            const node = nextProps.node;
-            const { getMessages } = this.props as any;
-            await getMessages();
-        }
     }
 
     componentDidMount() {

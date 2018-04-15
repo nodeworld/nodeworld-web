@@ -6,7 +6,7 @@ import { MessageType } from "../../models/message.model";
 
 export interface NodeInputProps {
     onMessageSent: Function,
-    visitor: string
+    name: string | null
 }
 
 class NodeInput extends React.Component<NodeInputProps, {}> {
@@ -29,12 +29,12 @@ class NodeInput extends React.Component<NodeInputProps, {}> {
     }
 
     render() {
-        const { visitor } = this.props;
+        const { name } = this.props;
         return (
             <div className="node-input-container">
-                { visitor ? (
+                { name ? (
                     <React.Fragment>
-                        <div className="node-input-status">{ visitor }</div>
+                        <div className="node-input-status">{ name }</div>
                         <form onSubmit={this.submit}>
                             <input value={(this.state as any).message} onChange={this.onChange} type="text"></input>
                         </form>

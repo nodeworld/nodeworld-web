@@ -10,7 +10,8 @@ import { NodeLog } from "./node-log";
 import { NodeInput } from "./node-input";
 import { NodeMessage } from "./node-message";
 
-import { MessageType } from "../../models/message.model"; 
+import { MessageType, Message } from "../../models/message.model";
+import { VisitorReducerState } from "../../reducers/visitor.reducer";
 
 const mapStateToProps = (state: any) => ({
     node: state.node,
@@ -24,19 +25,22 @@ const mapDispatchToProps = (dispatch: any) => ({
     joinNode: (name: string) => dispatch(NodeActions.joinNode(name))
 });
 
-class NodeContainer extends React.Component {
+export interface NodeContainerProps {
+    joinNode: (name: string) => void;
+    messages: Message[];
+    visitor: VisitorReducerState;
+}
+
+class NodeContainer extends React.Component<NodeContainerProps> {
     constructor(props: any) {
         super(props);
         this.resolveMessage = this.resolveMessage.bind(this);
     }
 
     componentDidMount() {
-        const nodeName = (this.props as any).match.params.node
-        const pathName = (this.props as any).location.pathname;
-        if((!nodeName && pathName !== "/") || nodeName === "main")
-            (this.props as any).history.push("/");
-        const { joinNode } = this.props as any;
-        joinNode(nodeName ? nodeName : "main");
+        const nodeName = (this.props as any).match.params.node;
+        if(nodeName)
+            this.props.joinNode(nodeName);
     }
 
     async resolveMessage(message: string) {
@@ -48,12 +52,12 @@ class NodeContainer extends React.Component {
     }
 
     render() {
-        const { messages, visitor } = this.props as any;
-        const visitor_name = visitor.logged ? visitor.visitor.name : null;
+        const { messages, visitor } = this.props;
+        const visitor_name = visitor.logged ? visitor.visitor!.name : null;
         return (
             <div className="node-room">
                 <NodeLog messages={messages}/>
-                <NodeInput onMessageSent={this.resolveMessage} visitor={visitor_name} />
+                <NodeInput onMessageSent={this.resolveMessage} name={visitor_name} />
             </div>
         );
     }

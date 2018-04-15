@@ -10,8 +10,9 @@ import { NodeLog } from "./node-log";
 import { NodeInput } from "./node-input";
 import { NodeMessage } from "./node-message";
 
-import { MessageType, Message } from "../../models/message.model";
+import { buildMessage, MessageType, Message } from "../../models/message.model";
 import { VisitorReducerState } from "../../reducers/visitor.reducer";
+import { NodeReducerState } from "../../reducers/node.reducer";
 
 const mapStateToProps = (state: any) => ({
     node: state.node,
@@ -20,15 +21,20 @@ const mapStateToProps = (state: any) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
+    systemMessage: (content: string) => dispatch(LogActions.addMessage(buildMessage({ type: MessageType.SYSTEM, content }))),
     sendMessage: (type: MessageType, content: string) => dispatch(LogActions.sendMessage(type, content)),
     sendCommand: (content: string) => dispatch(LogActions.sendCommand(content)),
     joinNode: (name: string) => dispatch(NodeActions.joinNode(name))
 });
 
 export interface NodeContainerProps {
+    sendMessage: (type: MessageType, content: string) => void;
+    sendCommand: (content: string) => void;
     joinNode: (name: string) => void;
+    systemMessage: (content: string) => void;
     messages: Message[];
     visitor: VisitorReducerState;
+    node: NodeReducerState
 }
 
 class NodeContainer extends React.Component<NodeContainerProps> {
@@ -44,11 +50,17 @@ class NodeContainer extends React.Component<NodeContainerProps> {
     }
 
     async resolveMessage(message: string) {
-        const { sendMessage, sendCommand } = this.props as any;
-        if(message.charAt(0) === "/")
+        const { sendMessage, sendCommand, systemMessage } = this.props;
+        if(message.charAt(0) === "/") {
             await sendCommand(message);
-        else
-            await sendMessage(MessageType.CHAT, message);
+        } else {
+            if(this.props.node.node) {
+                await sendMessage(MessageType.CHAT, message);
+            } else {
+                await systemMessage("You are currently in space, you cannot talk in here.");
+                await systemMessage("To join a node, type /join [node]");
+            }
+        }
     }
 
     render() {

@@ -41,7 +41,7 @@ export interface NodeContainerProps {
     visitor: VisitorReducerState;
     node: NodeReducerState,
     input_mode: NodeInputMode,
-    prompt: { text: string, callback: Function }
+    prompt?: { text: string, callback: Function }
 }
 
 class NodeContainer extends React.Component<NodeContainerProps> {
@@ -77,12 +77,13 @@ class NodeContainer extends React.Component<NodeContainerProps> {
     }
 
     render() {
-        const { messages, visitor, input_mode } = this.props;
-        const visitor_name = visitor.logged ? visitor.visitor!.name : null;
+        const { messages, visitor, input_mode, prompt } = this.props;
+        const visitor_name = visitor.visitor ? visitor.visitor.name : undefined;
+        const prompt_text = prompt ? prompt.text : undefined;
         return (
             <div className="node-room">
                 <NodeLog messages={messages}/>
-                <NodeInput onMessageSent={this.resolveMessage} name={visitor_name} mode={input_mode} />
+                <NodeInput onMessageSent={this.resolveMessage} name={visitor_name} mode={input_mode} prompt={prompt_text} />
             </div>
         );
     }

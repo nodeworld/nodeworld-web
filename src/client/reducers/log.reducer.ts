@@ -2,7 +2,7 @@ import { LogAction, LogActionType } from "../actions/log.actions";
 import { Message } from "../models/message.model";
 import { NodeInputMode } from "../components/node/node-input";
 
-const initialState = { messages: [], input_mode: NodeInputMode.ANONYMOUS };
+const initialState = { messages: [], input_mode: NodeInputMode.CHAT };
 
 export interface LogReducerState {
     messages: Array<Message>;

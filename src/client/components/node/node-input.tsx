@@ -5,14 +5,15 @@ import { Link } from "react-router-dom";
 import { MessageType } from "../../models/message.model";
 
 export enum NodeInputMode {
-    ANONYMOUS = 0,
-    CHAT = 1,
+    CHAT = 0,
+    SECURE = 1
 }
 
 export interface NodeInputProps {
-    onMessageSent: Function,
-    mode: NodeInputMode
-    name: string | null
+    onMessageSent: Function;
+    mode: NodeInputMode;
+    name?: string;
+    prompt?: string;
 }
 
 class NodeInput extends React.Component<NodeInputProps, {}> {
@@ -35,24 +36,26 @@ class NodeInput extends React.Component<NodeInputProps, {}> {
     }
 
     render() {
-        const { name, mode } = this.props;
+        const { name, mode, prompt } = this.props;
         switch(mode) {
-            case NodeInputMode.ANONYMOUS:
-                return (
-                    <div className="node-input-container">
-                        <div className="node-input-status">anonymous</div>
-                        <form onSubmit={this.submit}>
-                            <input value={(this.state as any).message} placeholder="/register [name] or /login [name]" onChange={this.onChange} type="text"></input>
-                        </form>
-                    </div>
-                );
             case NodeInputMode.CHAT:
                 return (
                     <div className="node-input-container">
                         <React.Fragment>
-                            <div className="node-input-status">{ name }</div>
+                            <div className="node-input-status">{ name ? name : "anonymous" }</div>
                             <form onSubmit={this.submit}>
-                                <input value={(this.state as any).message} onChange={this.onChange} type="text"></input>
+                                <input value={(this.state as any).message} placeholder={ prompt } onChange={this.onChange} type="text"></input>
+                            </form>
+                        </React.Fragment>
+                    </div>
+                );
+            case NodeInputMode.SECURE:
+                return (
+                    <div className="node-input-container">
+                        <React.Fragment>
+                            <div className="node-input-status">secure</div>
+                            <form onSubmit={this.submit}>
+                                <input value={(this.state as any).message} placeholder={ prompt } onChange={this.onChange} type="password"></input>
                             </form>
                         </React.Fragment>
                     </div>

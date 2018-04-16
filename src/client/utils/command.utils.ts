@@ -2,14 +2,15 @@ import { Map } from "immutable";
 
 import * as VisitorActions from "../actions/visitor.actions";
 
-import { getVisitor } from "../api/visitor.api";
+import { getVisitor, login } from "../api/visitor.api";
 
-import { addMessage, clearMessages, setPrompt } from "../actions/log.actions";
+import { addMessage, clearMessages, setPrompt, setInputMode } from "../actions/log.actions";
 import { joinNode } from "../actions/node.actions";
 
 import { Visitor } from "../models/visitor.model";
 import { WebCommandContext, Command } from "../models/command.model";
 import { MessageType, buildMessage } from "../models/message.model";
+import { NodeInputMode } from "../components/node/node-input";
 
 export interface CommandInfo {
     [key: string]: {
@@ -82,10 +83,20 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                     const ctx_visitor = await getVisitor(name);
                     if(!ctx_visitor) throw "Visitor does not exist.";
                     await send(MessageType.SYSTEM, "Input visitor password:");
-                    await ctx.dispatch(setPrompt("Input visitor password...", async (content: string) => {
-                        await send(MessageType.SYSTEM, `Password received: ${content}`);
+                    await ctx.dispatch(setInputMode(NodeInputMode.SECURE));
+                    await ctx.dispatch(setPrompt("Input visitor password...", async (password: string) => {
+                        try {
+                            const visitor = await login({ name, password });
+                            await ctx.dispatch(VisitorActions.setVisitor(visitor));
+                            await ctx.dispatch(VisitorActions.setVisitorLogged(true));  // TODO: omit this whole thing
+                        } catch(e) {
+                            await send(MessageType.SYSTEM, `Error: ${e.errors.message}`);
+                        } finally {
+                            await ctx.dispatch(setInputMode(NodeInputMode.CHAT));
+                        }
                     }));
                 } catch(e) {
+                    console.log(e);
                     await send(MessageType.SYSTEM, `Error: ${String(e)}`);
                 }
             } else {

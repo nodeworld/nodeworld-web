@@ -63,15 +63,13 @@ class NodeContainer extends React.Component<NodeContainerProps> {
         if(message.charAt(0) === "/") {
             await sendCommand(message);
         } else {
-            if(this.props.node.node) {
+            if(prompt) {
+                await prompt.callback(message);
+                await resolvePrompt();
+            } else if(this.props.node.node) {
                 await sendMessage(MessageType.CHAT, message);
             } else {
-                if(prompt) {
-                    await prompt.callback(message);
-                    await resolvePrompt();
-                } else {
-                    await systemMessage("You are currently in space. To join a node, type /join [node]");
-                }
+                await systemMessage("You are currently in space. To join a node, type /join [node]");
             }
         }
     }

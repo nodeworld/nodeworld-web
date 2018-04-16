@@ -51,7 +51,7 @@ class NodeInput extends React.Component<NodeInputProps, {}> {
                 );
             case NodeInputMode.SECURE:
                 return (
-                    <div className="node-input-container">
+                    <div className="node-input-container node-input-container-secure">
                         <React.Fragment>
                             <div className="node-input-status">secure</div>
                             <form onSubmit={this.submit}>

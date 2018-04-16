@@ -24,6 +24,11 @@ export const getNode = async (name: string): Promise<Node> => {
     return list.nodes[0];
 }
 
+export const leaveNode = () => {
+    if(socket && socket.connected)
+        socket.close();
+}
+
 export const joinNode = (name: string): void => {
     //socket = io(LIVE_ENDPOINT, { path: "/live", query: { node: name }, reconnectionAttempts: 3, transports: ["websocket"] });
     socket.io.opts.query = { node: name };

@@ -3,7 +3,7 @@ import { Visitor } from "./visitor.model";
 export interface WebCommandContext {
     command: Command;
     dispatch: Function;
-    visitor: Visitor
+    visitor: Visitor | null;
 }
 
 export interface Command {

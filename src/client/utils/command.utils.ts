@@ -2,12 +2,15 @@ import { Map } from "immutable";
 
 import * as VisitorActions from "../actions/visitor.actions";
 
-import { addMessage, clearMessages } from "../actions/log.actions";
-import { joinNode } from "../actions/node.actions";
+import { getVisitor, login, register } from "../api/visitor.api";
+
+import { addMessage, clearMessages, setPrompt, setInputMode } from "../actions/log.actions";
+import { joinNode, leaveNode } from "../actions/node.actions";
 
 import { Visitor } from "../models/visitor.model";
 import { WebCommandContext, Command } from "../models/command.model";
 import { MessageType, buildMessage } from "../models/message.model";
+import { NodeInputMode } from "../components/node/node-input";
 
 export interface CommandInfo {
     [key: string]: {
@@ -48,34 +51,117 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
     const send = async (type: MessageType, content: string) => await ctx.dispatch(addMessage(buildMessage({ type, content })));
 
     switch(ctx.command.name) {
-        case "help":
+        case "help": {
             const help_command = ctx.command.args[0];
             if(Commands.hasOwnProperty(help_command))
                 await send(MessageType.SYSTEM, Commands[help_command].help);
             else
                 await send(MessageType.SYSTEM, "Could not find information on that command. For a list of commands, type /commands");
             break;
-        case "ping":
+        }
+        case "ping": {
             await send(MessageType.SYSTEM, "Pong!");
             break;
-        case "info":
-            await send(MessageType.SYSTEM, `Your Visitor ID is ${ctx.visitor.id}`);
-            await send(MessageType.SYSTEM, `Your name is ${ctx.visitor.name}`);
-            await send(MessageType.SYSTEM, `Your email address is ${ctx.visitor.email}`);
+        }
+        case "info": {
+            if(ctx.visitor) {
+                await send(MessageType.SYSTEM, `Your Visitor ID is ${ctx.visitor.id}`);
+                await send(MessageType.SYSTEM, `Your name is ${ctx.visitor.name}`);
+                await send(MessageType.SYSTEM, `Your email address is ${ctx.visitor.email}`);
+            } else {
+                await send(MessageType.SYSTEM, "You must be logged in to use this command.");
+            }
             break;
-        case "join":
-            const node = ctx.command.args[0] || "";
-            window.location.href = `/${node}`;
-            await ctx.dispatch(joinNode(node));
+        }
+        case "join": {
+            const node = ctx.command.args[0];
+            if(node) {
+                await ctx.dispatch(joinNode(node));
+            } else {
+                await send(MessageType.SYSTEM, "A node name must be specified in order to join.");
+            }
             break;
-        case "logout":
-            await ctx.dispatch(VisitorActions.logOutVisitor());
-            await send(MessageType.SYSTEM, "Logged out.");
+        }
+        case "leave": {
+            await ctx.dispatch(leaveNode());
             break;
-        case "node":
+        }
+        case "login": {
+            const name = ctx.command.args[0];
+            if(name) {
+                try {
+                    if(ctx.visitor) throw "You are already logged in.";
+                    //await send(MessageType.SYSTEM, `Logging in as ${name}...`);
+                    const ctx_visitor = await getVisitor(name);
+                    if(!ctx_visitor) throw "Visitor does not exist.";
+                    await send(MessageType.SYSTEM, "Input visitor password:");
+                    await ctx.dispatch(setInputMode(NodeInputMode.SECURE));
+                    await ctx.dispatch(setPrompt("Input visitor password...", async (password: string) => {
+                        try {
+                            const visitor = await login({ name, password });
+                            await ctx.dispatch(VisitorActions.setVisitor(visitor));
+                            await ctx.dispatch(VisitorActions.setVisitorLogged(true));  // TODO: omit this whole thing
+                            await send(MessageType.SYSTEM, "Logged in.");
+                        } catch(e) {
+                            await send(MessageType.SYSTEM, `Error: ${e.errors.message}`);
+                        } finally {
+                            await ctx.dispatch(setInputMode(NodeInputMode.CHAT));
+                        }
+                    }));
+                } catch(e) {
+                    console.log(e);
+                    await send(MessageType.SYSTEM, `Error: ${String(e)}`);
+                }
+            } else {
+                await send(MessageType.SYSTEM, "A name must be specified in order to login.")
+            }
             break;
-        default:
+        }
+        case "register": {
+            const name = ctx.command.args[0];
+            if(name) {
+                try {
+                    if(ctx.visitor) throw "You are already logged in.";
+                    const ctx_visitor = await getVisitor(name);
+                    if(ctx_visitor) throw "Visitor already exists.";
+                    await send(MessageType.SYSTEM, "Input new visitor password:");
+                    await ctx.dispatch(setInputMode(NodeInputMode.SECURE));
+                    await ctx.dispatch(setPrompt("Input new visitor password...", async (password: string) => {
+                        try {
+                            await register({ name, password });
+                            const visitor = await login({ name, password });
+                            await ctx.dispatch(VisitorActions.setVisitor(visitor));
+                            await ctx.dispatch(VisitorActions.setVisitorLogged(true));
+                            await send(MessageType.SYSTEM, "Created new visitor.");
+                        } catch(e) {
+                            await send(MessageType.SYSTEM, `Error: ${e.errors.message}`);
+                        } finally {
+                            await ctx.dispatch(setInputMode(NodeInputMode.CHAT));
+                        }
+                    }));
+                } catch(e) {
+                    await send(MessageType.SYSTEM, `Error: ${String(e)}`);
+                }
+            } else {
+                await send(MessageType.SYSTEM, "A name must be specified in order to create an account.");
+            }
+            break;
+        }
+        case "logout": {
+            if(ctx.visitor) {
+                await ctx.dispatch(VisitorActions.logOutVisitor());
+                await send(MessageType.SYSTEM, "Logged out.");
+            } else {
+                await send(MessageType.SYSTEM, "Error: You are not logged in.");
+            }
+            break;
+        }
+        case "node": {
+            break;
+        }
+        default: {
             return false;
+        }
     }
     
     return true;

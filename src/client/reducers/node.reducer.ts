@@ -2,10 +2,10 @@ import { NodeAction, NodeActionType } from "../actions/node.actions";
 
 import { Node } from "../models/node.model";
 
-const initialState = { node: null };
+const initialState = { node: undefined };
 
 export interface NodeReducerState {
-    node: Node | null;
+    node?: Node;
 }
 
 export const NodeReducer = (state: NodeReducerState = initialState, action: NodeAction) => {

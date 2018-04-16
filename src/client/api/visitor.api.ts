@@ -4,7 +4,14 @@ import { API_Error } from "../models/server.models";
 
 declare const API_ENDPOINT: string;
 
-export const register = async (login: LoginData): Promise<Visitor> => {
+export const getVisitor = async (name: string): Promise<Visitor> => {
+    const data = await fetch(`${API_ENDPOINT}/visitors?name=${name}&limit=1`);
+    if(!data.ok) throw await data.json() as API_Error;
+    const list = (await data.json()).visitors;
+    return list[0];
+}
+
+export const register = async (login: LoginData): Promise<{ visitor: Visitor, node: Node }> => {
     const data = await fetch(`${API_ENDPOINT}/visitors`, {
         method: "POST",
         credentials: "include",

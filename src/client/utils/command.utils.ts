@@ -2,7 +2,9 @@ import { Map } from "immutable";
 
 import * as VisitorActions from "../actions/visitor.actions";
 
-import { addMessage, clearMessages } from "../actions/log.actions";
+import { getVisitor } from "../api/visitor.api";
+
+import { addMessage, clearMessages, setPrompt } from "../actions/log.actions";
 import { joinNode } from "../actions/node.actions";
 
 import { Visitor } from "../models/visitor.model";
@@ -59,14 +61,36 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
             await send(MessageType.SYSTEM, "Pong!");
             break;
         case "info":
-            await send(MessageType.SYSTEM, `Your Visitor ID is ${ctx.visitor.id}`);
-            await send(MessageType.SYSTEM, `Your name is ${ctx.visitor.name}`);
-            await send(MessageType.SYSTEM, `Your email address is ${ctx.visitor.email}`);
+            if(ctx.visitor) {
+                await send(MessageType.SYSTEM, `Your Visitor ID is ${ctx.visitor.id}`);
+                await send(MessageType.SYSTEM, `Your name is ${ctx.visitor.name}`);
+                await send(MessageType.SYSTEM, `Your email address is ${ctx.visitor.email}`);
+            } else {
+                await send(MessageType.SYSTEM, "You must be logged in to use this command.");
+            }
             break;
         case "join":
             const node = ctx.command.args[0] || "";
             window.location.href = `/${node}`;
             await ctx.dispatch(joinNode(node));
+            break;
+        case "login":
+            const name = ctx.command.args[0];
+            if(name) {
+                try {
+                    await send(MessageType.SYSTEM, `Logging in as ${name}...`);
+                    const ctx_visitor = await getVisitor(name);
+                    if(!ctx_visitor) throw "Visitor does not exist.";
+                    await send(MessageType.SYSTEM, "Input visitor password:");
+                    await ctx.dispatch(setPrompt("Input visitor password...", async (content: string) => {
+                        await send(MessageType.SYSTEM, `Password received: ${content}`);
+                    }));
+                } catch(e) {
+                    await send(MessageType.SYSTEM, `Error: ${String(e)}`);
+                }
+            } else {
+                await send(MessageType.SYSTEM, "A name must be specified in order to login.")
+            }
             break;
         case "logout":
             await ctx.dispatch(VisitorActions.logOutVisitor());

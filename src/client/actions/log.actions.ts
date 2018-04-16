@@ -2,20 +2,21 @@ import { v1 as uuidv1 } from "uuid";
 
 import * as NodeAPI from "../api/node.api";
 
-import { runLocalCommand } from "../utils/command.utils";
-
 import { Visitor } from "../models/visitor.model";
 import { Message, MessageType, buildMessage } from "../models/message.model";
 import { Command } from "../models/command.model";
+import { parseCommand, runLocalCommand } from "../utils/command.utils";
+import { NodeInputMode } from "../components/node/node-input";
 
-import { parseCommand } from "../utils/command.utils";
-
-export type LogAction = AddMessageAction | AddMessageErrorAction | ClearMessagesAction;
+export type LogAction = AddMessageAction | AddMessageErrorAction | ClearMessagesAction | SetInputModeAction | SetPromptAction | ResolvePromptAction;
 
 export enum LogActionType {
     AddMessage = "ADD_MESSAGE",
     AddMessageError = "ADD_MESSAGE_ERROR",
-    ClearMessages = "CLEAR_MESSAGES"
+    ClearMessages = "CLEAR_MESSAGES",
+    SetInputMode = "SET_INPUT_MODE",
+    SetPrompt = "SET_PROMPT",
+    ResolvePrompt = "RESOLVE_PROMPT"
 }
 
 export interface AddMessageAction {
@@ -32,6 +33,21 @@ export interface AddMessageErrorAction {
     message: string;
 }
 
+export interface SetInputModeAction {
+    type: LogActionType.SetInputMode;
+    mode: NodeInputMode
+}
+
+export interface SetPromptAction {
+    type: LogActionType.SetPrompt;
+    text: string;
+    callback: Function;
+}
+
+export interface ResolvePromptAction {
+    type: LogActionType.ResolvePrompt;
+}
+
 export const addMessage = (message: Message): AddMessageAction => ({
     type: LogActionType.AddMessage,
     message: {
@@ -45,6 +61,12 @@ export const addMessageError = (message: string): AddMessageErrorAction => ({
 });
 
 export const clearMessages = (): ClearMessagesAction => ({ type: LogActionType.ClearMessages });
+
+export const setInputMode = (mode: NodeInputMode): SetInputModeAction => ({ type: LogActionType.SetInputMode, mode });
+
+export const setPrompt = (text: string, callback: Function): SetPromptAction => ({ type: LogActionType.SetPrompt, text, callback });
+
+export const resolvePrompt = (): ResolvePromptAction => ({ type: LogActionType.ResolvePrompt });
 
 export const sendMessage = (type: MessageType, content: string) => {
     return async (dispatch: Function, getState: Function) => {
@@ -65,12 +87,16 @@ export const sendCommand = (content: string) => {
             const node = getState().node.node;
             const command = parseCommand(content);
             if(command.name === "me") {
+                if(!visitor) {
+                    await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: "You must be logged in to use this command." })));
+                    return;
+                }
                 const me_action = command.args.join(" ");
                 await dispatch(sendMessage(MessageType.ACTION, me_action));
             } else {
-                await dispatch(addMessage(buildMessage({ type: MessageType.ACTION, name: visitor.name, content })));
+                await dispatch(addMessage(buildMessage({ type: MessageType.ACTION, name: visitor ? visitor.name : "anonymous", content })));
                 const local_success = await runLocalCommand({ dispatch, visitor, command });
-                if(!local_success)
+                if(!local_success && visitor)
                     await NodeAPI.runCommand(node["id"], command);
             }
         } catch(e) { await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: `Error: ${e.errors.message}` }))); }

@@ -4,8 +4,14 @@ import { Link } from "react-router-dom";
 
 import { MessageType } from "../../models/message.model";
 
+export enum NodeInputMode {
+    ANONYMOUS = 0,
+    CHAT = 1,
+}
+
 export interface NodeInputProps {
     onMessageSent: Function,
+    mode: NodeInputMode
     name: string | null
 }
 
@@ -29,21 +35,29 @@ class NodeInput extends React.Component<NodeInputProps, {}> {
     }
 
     render() {
-        const { name } = this.props;
-        return (
-            <div className="node-input-container">
-                { name ? (
-                    <React.Fragment>
-                        <div className="node-input-status">{ name }</div>
+        const { name, mode } = this.props;
+        switch(mode) {
+            case NodeInputMode.ANONYMOUS:
+                return (
+                    <div className="node-input-container">
+                        <div className="node-input-status">anonymous</div>
                         <form onSubmit={this.submit}>
-                            <input value={(this.state as any).message} onChange={this.onChange} type="text"></input>
+                            <input value={(this.state as any).message} placeholder="/register [name] or /login [name]" onChange={this.onChange} type="text"></input>
                         </form>
-                    </React.Fragment>
-                ) : (
-                    <div className="node-input-status">Log in at <Link to="/login">/login</Link> or register at <Link to="/register">/register</Link></div>
-                )}
-            </div>
-        );
+                    </div>
+                );
+            case NodeInputMode.CHAT:
+                return (
+                    <div className="node-input-container">
+                        <React.Fragment>
+                            <div className="node-input-status">{ name }</div>
+                            <form onSubmit={this.submit}>
+                                <input value={(this.state as any).message} onChange={this.onChange} type="text"></input>
+                            </form>
+                        </React.Fragment>
+                    </div>
+                );
+        }
     }
 }
 

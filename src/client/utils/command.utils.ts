@@ -112,8 +112,12 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
             }
             break;
         case "logout":
-            await ctx.dispatch(VisitorActions.logOutVisitor());
-            await send(MessageType.SYSTEM, "Logged out.");
+            if(ctx.visitor) {
+                await ctx.dispatch(VisitorActions.logOutVisitor());
+                await send(MessageType.SYSTEM, "Logged out.");
+            } else {
+                await send(MessageType.SYSTEM, "Error: You are not logged in.");
+            }
             break;
         case "node":
             break;

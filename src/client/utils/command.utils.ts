@@ -77,6 +77,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
             const node = ctx.command.args[0];
             if(node) {
                 await ctx.dispatch(joinNode(node));
+                history.pushState(null, node, `${location.origin}/${node}`);
             } else {
                 await send(MessageType.SYSTEM, "A node name must be specified in order to join.");
             }

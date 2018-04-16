@@ -85,6 +85,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
             const name = ctx.command.args[0];
             if(name) {
                 try {
+                    if(ctx.visitor) throw "You are already logged in.";
                     await send(MessageType.SYSTEM, `Logging in as ${name}...`);
                     const ctx_visitor = await getVisitor(name);
                     if(!ctx_visitor) throw "Visitor does not exist.";

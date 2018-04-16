@@ -3,6 +3,7 @@ import { Map } from "immutable";
 import * as VisitorActions from "../actions/visitor.actions";
 
 import { getVisitor, login } from "../api/visitor.api";
+import { leaveNode } from "../api/node.api";
 
 import { addMessage, clearMessages, setPrompt, setInputMode } from "../actions/log.actions";
 import { joinNode } from "../actions/node.actions";
@@ -77,6 +78,9 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
             } else {
                 await send(MessageType.SYSTEM, "A node name must be specified in order to join.");
             }
+            break;
+        case "leave":
+            await leaveNode();
             break;
         case "login":
             const name = ctx.command.args[0];

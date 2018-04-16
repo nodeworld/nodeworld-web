@@ -25,7 +25,8 @@ export const getNode = async (name: string): Promise<Node> => {
 }
 
 export const leaveNode = () => {
-    socket.close();
+    if(socket && socket.connected)
+        socket.close();
 }
 
 export const joinNode = (name: string): void => {

@@ -1,7 +1,9 @@
 import * as NodeApi from "../api/node.api";
 import { Node } from "../models/node.model";
 import { manageLiveNodeConnection } from "../utils/live.utils";
-import { clearMessages } from "./log.actions";
+import { clearMessages, addMessage } from "./log.actions";
+import { buildMessage, MessageType } from "../models/message.model";
+import { CombinedReducerState } from "../reducers";
 
 export type NodeAction = SetNodeAction | SetNodeErrorAction;
 
@@ -31,16 +33,18 @@ export const setNodeError = (message: string): SetNodeErrorAction => ({
 });
 
 export const joinNode = (name: string) => {
-    return async (dispatch: any) => {
+    return async (dispatch: any, getState: () => CombinedReducerState) => {
         try {
-            console.log("Joining node " + name);
             const node = await NodeApi.getNode(name);
+            if(getState().node.node) {
+                NodeApi.leaveNode();
+            }
+            await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: `Joining ${node.name}...` })));
             NodeApi.joinNode(name);
-            dispatch(clearMessages());
             dispatch(setNode(node));
-        } catch(err) {
-            setTimeout(() => joinNode("main"), 1000);
-            dispatch(setNodeError(err));
+        } catch(e) {
+            console.log(e);
+            await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: `Error: ${e.errors.message}` })));
         }
     }
 }

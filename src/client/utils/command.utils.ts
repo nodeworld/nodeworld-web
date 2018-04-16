@@ -71,9 +71,12 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
             }
             break;
         case "join":
-            const node = ctx.command.args[0] || "";
-            window.location.href = `/${node}`;
-            await ctx.dispatch(joinNode(node));
+            const node = ctx.command.args[0];
+            if(node) {
+                await ctx.dispatch(joinNode(node));
+            } else {
+                await send(MessageType.SYSTEM, "A node name must be specified in order to join.");
+            }
             break;
         case "login":
             const name = ctx.command.args[0];

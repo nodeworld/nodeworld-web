@@ -16,7 +16,13 @@ export const manageLiveNodeConnection = (socket: SocketIOClient.Socket, dispatch
 
     socket.on("disconnect", (reason: any) => {
         const node = store.getState().node.node!.name;
-        send({ type: MessageType.SYSTEM, content: `Left ${node}. Attempting to reconnect...` });
+        switch(reason) {
+            case "io client disconnect":
+                send({ type: MessageType.SYSTEM, content: `Left ${node}.` });
+                break;
+            default:
+                send({ type: MessageType.SYSTEM, content: `Left ${node}. Attempting to reconnect...` });
+        }
     });
 
     socket.on("connect_error", () => {

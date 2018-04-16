@@ -7,6 +7,7 @@ import { Message, MessageType, buildMessage } from "../models/message.model";
 import { Command } from "../models/command.model";
 import { parseCommand, runLocalCommand } from "../utils/command.utils";
 import { NodeInputMode } from "../components/node/node-input";
+import { CombinedReducerState } from "../reducers";
 
 export type LogAction = AddMessageAction | AddMessageErrorAction | ClearMessagesAction | SetInputModeAction | SetPromptAction | ResolvePromptAction;
 
@@ -69,13 +70,14 @@ export const setPrompt = (text: string, callback: Function): SetPromptAction => 
 export const resolvePrompt = (): ResolvePromptAction => ({ type: LogActionType.ResolvePrompt });
 
 export const sendMessage = (type: MessageType, content: string) => {
-    return async (dispatch: Function, getState: Function) => {
+    return async (dispatch: Function, getState: () => CombinedReducerState) => {
         try {
-            const node_id = getState().node.node.id;
+            if(!getState().visitor.visitor) throw { errors: { message: "You are not logged in. Type /login to login, or /register to create a new account." }};
+            const node_id = getState().node.node!.id;
             const message = await NodeAPI.sendMessage(node_id, type, content);
             dispatch(addMessage(buildMessage(message)));
         } catch(e) {
-            console.error(e);
+            await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: `Error: ${e.errors.message}` })));
         }
     }
 }

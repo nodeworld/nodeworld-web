@@ -3,10 +3,9 @@ import { Map } from "immutable";
 import * as VisitorActions from "../actions/visitor.actions";
 
 import { getVisitor, login } from "../api/visitor.api";
-import { leaveNode } from "../api/node.api";
 
 import { addMessage, clearMessages, setPrompt, setInputMode } from "../actions/log.actions";
-import { joinNode } from "../actions/node.actions";
+import { joinNode, leaveNode } from "../actions/node.actions";
 
 import { Visitor } from "../models/visitor.model";
 import { WebCommandContext, Command } from "../models/command.model";
@@ -80,7 +79,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
             }
             break;
         case "leave":
-            await leaveNode();
+            await ctx.dispatch(leaveNode());
             break;
         case "login":
             const name = ctx.command.args[0];
@@ -96,6 +95,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                             const visitor = await login({ name, password });
                             await ctx.dispatch(VisitorActions.setVisitor(visitor));
                             await ctx.dispatch(VisitorActions.setVisitorLogged(true));  // TODO: omit this whole thing
+                            await send(MessageType.SYSTEM, "Logged in.");
                         } catch(e) {
                             await send(MessageType.SYSTEM, `Error: ${e.errors.message}`);
                         } finally {

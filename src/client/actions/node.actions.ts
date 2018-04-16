@@ -14,7 +14,7 @@ export enum NodeActionType {
 
 export interface SetNodeAction {
     type: NodeActionType.SetNode,
-    node: Node
+    node?: Node
 }
 
 export interface SetNodeErrorAction {
@@ -22,7 +22,7 @@ export interface SetNodeErrorAction {
     message: string
 }
 
-export const setNode = (node: Node): SetNodeAction => ({
+export const setNode = (node?: Node): SetNodeAction => ({
     type: NodeActionType.SetNode,
     node
 });
@@ -36,9 +36,8 @@ export const joinNode = (name: string) => {
     return async (dispatch: any, getState: () => CombinedReducerState) => {
         try {
             const node = await NodeApi.getNode(name);
-            if(getState().node.node) {
-                NodeApi.leaveNode();
-            }
+            if(getState().node.node)
+                await dispatch(leaveNode());
             await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: `Joining ${node.name}...` })));
             NodeApi.joinNode(name);
             dispatch(setNode(node));
@@ -46,5 +45,12 @@ export const joinNode = (name: string) => {
             console.log(e);
             await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: `Error: ${e.errors.message}` })));
         }
+    }
+}
+
+export const leaveNode = () => {
+    return async (dispatch: any) => {
+        NodeApi.leaveNode();
+        dispatch(setNode(undefined));
     }
 }

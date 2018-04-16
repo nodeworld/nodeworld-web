@@ -11,7 +11,7 @@ export const getVisitor = async (name: string): Promise<Visitor> => {
     return list[0];
 }
 
-export const register = async (login: LoginData): Promise<Visitor> => {
+export const register = async (login: LoginData): Promise<{ visitor: Visitor, node: Node }> => {
     const data = await fetch(`${API_ENDPOINT}/visitors`, {
         method: "POST",
         credentials: "include",

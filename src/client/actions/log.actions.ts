@@ -72,7 +72,7 @@ export const resolvePrompt = (): ResolvePromptAction => ({ type: LogActionType.R
 export const sendMessage = (type: MessageType, content: string) => {
     return async (dispatch: Function, getState: () => CombinedReducerState) => {
         try {
-            if(!getState().visitor.visitor) throw { errors: { message: "You are not logged in. Type /login to login, or /register to create a new account." }};
+            if(!getState().visitor.visitor) throw { errors: { message: "You must be logged in to send messages. Type /login to login, or /register to create a new account." }};
             const node_id = getState().node.node!.id;
             const message = await NodeAPI.sendMessage(node_id, type, content);
             dispatch(addMessage(buildMessage(message)));
@@ -98,8 +98,11 @@ export const sendCommand = (content: string) => {
             } else {
                 await dispatch(addMessage(buildMessage({ type: MessageType.ACTION, name: visitor ? visitor.name : "anonymous", content })));
                 const local_success = await runLocalCommand({ dispatch, visitor, command });
-                if(!local_success && visitor)
-                    await NodeAPI.runCommand(node["id"], command);
+                if(!local_success)
+                    if(visitor)
+                        await NodeAPI.runCommand(node["id"], command);
+                    else
+                        throw { errors: { message: "You must be logged in to use non-local commands. Type /login to login, or /register to create a new account." } };
             }
         } catch(e) { await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: `Error: ${e.errors.message}` }))); }
     }

@@ -9,8 +9,8 @@ export const manageLiveNodeConnection = (socket: SocketIOClient.Socket, dispatch
     const send = (message: Partial<Message>) => dispatch(addMessage(buildMessage(message)));
 
     socket.on("message", (message: Message) => {
-        const logged = store.getState().visitor.logged;
-        if(logged && message.author_id === store.getState().visitor.visitor!.id) return;
+        const visitor = store.getState().visitor.visitor;
+        if(visitor && message.author_id === visitor.id) return;
         send(message);
     });
 

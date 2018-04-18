@@ -4,7 +4,6 @@ import { Visitor } from "../models/visitor.model";
 const initialState = { logged: false, visitor: null };
 
 export interface VisitorReducerState {
-    logged: boolean;
     visitor: Visitor | null
 }
 

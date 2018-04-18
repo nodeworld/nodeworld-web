@@ -4,12 +4,12 @@ import * as VisitorActions from "../actions/visitor.actions";
 
 import { getVisitor, login, register } from "../api/visitor.api";
 
-import { addMessage, clearMessages, setPrompt, setInputMode } from "../actions/log.actions";
+import { printMessage, clearMessages, setPrompt, setInputMode } from "../actions/log.actions";
 import { joinNode, leaveNode } from "../actions/node.actions";
 
 import { Visitor } from "../models/visitor.model";
 import { WebCommandContext, Command } from "../models/command.model";
-import { MessageType, buildMessage } from "../models/message.model";
+import { MessageType } from "../models/message.model";
 import { NodeInputMode } from "../components/node/node-input";
 
 export interface CommandInfo {
@@ -78,7 +78,7 @@ export const parseCommand = (raw: string): Command => {
 }
 
 export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> => {
-    const send = async (type: MessageType, content: string) => await ctx.dispatch(addMessage(buildMessage({ type, content })));
+    const send = async (type: MessageType, content: string) => await ctx.dispatch(printMessage({ type, content }));
     const visitor = ctx.getState().visitor.visitor;
     const node = ctx.getState().node.node;
 

@@ -69,6 +69,10 @@ export const setPrompt = (text: string, callback: Function): SetPromptAction => 
 
 export const resolvePrompt = (): ResolvePromptAction => ({ type: LogActionType.ResolvePrompt });
 
+export const printMessage = (message: Partial<Message>) => async (dispatch: Function) => await dispatch(addMessage(buildMessage(message)));
+
+export const printSystemMessage = (content: string) => printMessage({ type: MessageType.SYSTEM, content });
+
 export const sendMessage = (type: MessageType, content: string) => {
     return async (dispatch: Function, getState: () => CombinedReducerState) => {
         try {
@@ -77,10 +81,8 @@ export const sendMessage = (type: MessageType, content: string) => {
             if(!node) throw new Error("You must be in a node to send commands.");
             if(!content.trim()) return;
             const message = await NodeAPI.sendMessage(node.id, type, content);
-            await dispatch(addMessage(buildMessage(message)));
-        } catch(e) {
-            await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: `Error: ${e.message}` })));
-        }
+            await dispatch(printMessage(message));
+        } catch(e) { dispatch(printSystemMessage(`Error: ${e.message}`)); }
     }
 }
 
@@ -95,13 +97,13 @@ export const sendCommand = (content: string) => {
                 const me_action = command.args.join(" ");
                 await dispatch(sendMessage(MessageType.ACTION, me_action));
             } else {
-                await dispatch(addMessage(buildMessage({ type: MessageType.ACTION, name: visitor ? visitor.name : "anonymous", content })));
+                await dispatch(printMessage({ type: MessageType.ACTION, name: visitor ? visitor.name : "anonymous", content }));
                 const local_success = await runLocalCommand({ dispatch, getState, command });
                 if(!local_success) {
                     if(!visitor) throw new Error("You must be logged in to use non-local commands. Type /login to login, or /register to create a new account.");
                     if(node) await NodeAPI.runCommand(node["id"], command);
                 }
             }
-        } catch(e) { await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: `Error: ${e.message}` }))); }
+        } catch(e) { dispatch(printSystemMessage(`Error: ${e.message}`)); }
     }
 }

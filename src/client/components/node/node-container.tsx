@@ -24,7 +24,7 @@ const mapStateToProps = (state: CombinedReducerState) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-    systemMessage: (content: string) => dispatch(LogActions.addMessage(buildMessage({ type: MessageType.SYSTEM, content }))),
+    systemMessage: (content: string) => dispatch(LogActions.printSystemMessage(content)),
     sendMessage: (type: MessageType, content: string) => dispatch(LogActions.sendMessage(type, content)),
     sendCommand: (content: string) => dispatch(LogActions.sendCommand(content)),
     resolvePrompt: () => dispatch(LogActions.resolvePrompt()),
@@ -55,7 +55,7 @@ class NodeContainer extends React.Component<NodeContainerProps> {
         if(nodeName)
             this.props.joinNode(nodeName);
         else
-            await this.props.systemMessage("You are currently in space. To join a node, type /join [node]");
+            this.props.systemMessage("You are currently in space. To join a node, type /join [node]");
     }
 
     async resolveMessage(message: string) {
@@ -69,7 +69,7 @@ class NodeContainer extends React.Component<NodeContainerProps> {
             } else if(this.props.node.node) {
                 await sendMessage(MessageType.CHAT, message);
             } else {
-                await systemMessage("You are currently in space. To join a node, type /join [node]");
+                systemMessage("You are currently in space. To join a node, type /join [node]");
             }
         }
     }

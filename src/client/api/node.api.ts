@@ -9,7 +9,6 @@ import { Command } from "../models/command.model";
 import { manageLiveNodeConnection } from "../utils/live.utils";
 import { handleError } from "../utils/api.utils";
 import { store } from "../store";
-import { addMessage } from "../actions/log.actions";
 
 declare const API_ENDPOINT: string;
 declare const LIVE_ENDPOINT: string;
@@ -30,7 +29,6 @@ export const leaveNode = () => {
 }
 
 export const joinNode = (name: string): void => {
-    //socket = io(LIVE_ENDPOINT, { path: "/live", query: { node: name }, reconnectionAttempts: 3, transports: ["websocket"] });
     socket.io.opts.query = { node: name };
     socket.open();
 }

@@ -1,8 +1,8 @@
 import * as NodeApi from "../api/node.api";
 import { Node } from "../models/node.model";
 import { manageLiveNodeConnection } from "../utils/live.utils";
-import { clearMessages, addMessage } from "./log.actions";
-import { buildMessage, MessageType } from "../models/message.model";
+import { printSystemMessage } from "./log.actions";
+import { MessageType } from "../models/message.model";
 import { CombinedReducerState } from "../reducers";
 
 export type NodeAction = SetNodeAction | SetNodeErrorAction;
@@ -37,11 +37,11 @@ export const joinNode = (name: string) => {
         try {
             const node = await NodeApi.getNode(name);
             if(getState().node.node) await dispatch(leaveNode());
-            await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: `Joining ${node.name}...` })));
+            dispatch(printSystemMessage(`Joining ${node.name}...`));
             NodeApi.joinNode(name);
             dispatch(setNode(node));
         } catch(e) {
-            await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: `Error: ${e.message}` })));
+            dispatch(printSystemMessage(`Error: ${e.message}`));
         }
     }
 }

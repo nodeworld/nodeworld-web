@@ -109,10 +109,11 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                 break;
             }
             case "join": {
-                const node = ctx.command.args[0];
-                if(!node) throw new Error("A node name must be specified in order to join.");
-                await ctx.dispatch(joinNode(node));
-                history.pushState(null, node, `${location.origin}/${node}`);
+                const ctx_node = ctx.command.args[0];
+                if(!ctx_node) throw new Error("A node name must be specified in order to join.");
+                if(node && node.name === ctx_node) throw new Error("You are already in that node. Type /leave to leave this node.");
+                await ctx.dispatch(joinNode(ctx_node));
+                history.pushState(null, ctx_node, `${location.origin}/${ctx_node}`);
                 break;
             }
             case "leave": {

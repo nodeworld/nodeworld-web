@@ -3,31 +3,19 @@ import * as VisitorAPI from "../api/visitor.api";
 import { Visitor } from "../models/visitor.model";
 
 export enum VisitorActionType {
-    SetVisitor = "SET_VISITOR",
-    SetVisitorLogged = "SET_VISITOR_LOGGED",
-    SetVisitorError = "SET_VISITOR_ERROR"
+    SetVisitor = "SET_VISITOR"
 }
 
-export type VisitorAction = SetVisitorAction | SetVisitorLoggedAction;
+export type VisitorAction = SetVisitorAction;
 
 export interface SetVisitorAction {
     type: VisitorActionType.SetVisitor,
-    visitor: Visitor | null
+    visitor?: Visitor
 }
 
-export interface SetVisitorLoggedAction {
-    type: VisitorActionType.SetVisitorLogged,
-    logged: boolean;
-}
-
-export const setVisitor = (visitor: Visitor | null): SetVisitorAction => ({
+export const setVisitor = (visitor?: Visitor): SetVisitorAction => ({
     type: VisitorActionType.SetVisitor,
     visitor
-});
-
-export const setVisitorLogged = (logged: boolean): SetVisitorLoggedAction => ({
-    type: VisitorActionType.SetVisitorLogged,
-    logged
 });
 
 export const setLoggedInVisitor = () => {
@@ -36,7 +24,6 @@ export const setLoggedInVisitor = () => {
             const visitor = await VisitorAPI.me();
             if(visitor.hasOwnProperty('errors')) throw (visitor as any)['errors'];
             await dispatch(setVisitor(visitor));
-            await dispatch(setVisitorLogged(true));
         } catch(e) { console.error(e); }
     }
 }
@@ -45,8 +32,7 @@ export const logOutVisitor = () => {
     return async (dispatch: Function) => {
         try {
             await VisitorAPI.logout();
-            await dispatch(setVisitorLogged(false));
-            await dispatch(setVisitor(null));
+            await dispatch(setVisitor());
         } catch(e) { console.error(e); }
     }
 }

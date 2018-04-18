@@ -12,8 +12,6 @@ export const VisitorReducer = (state: VisitorReducerState = initialState, action
     switch(action.type) {
         case VisitorActionType.SetVisitor:
             return Object.assign({}, state, { visitor: action.visitor });
-        case VisitorActionType.SetVisitorLogged:
-            return Object.assign({}, state, { logged: action.logged });
         default:
             return state;
     }

@@ -129,7 +129,6 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                     try {
                         const visitor = await login({ name, password });
                         await ctx.dispatch(VisitorActions.setVisitor(visitor));
-                        await ctx.dispatch(VisitorActions.setVisitorLogged(true));  // TODO: omit this whole thing
                         await send(MessageType.SYSTEM, "Logged in.");
                     } catch(e) {
                         await send(MessageType.SYSTEM, `Error: ${e.errors.message}`);
@@ -152,7 +151,6 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                         await register({ name, password });
                         const visitor = await login({ name, password });
                         await ctx.dispatch(VisitorActions.setVisitor(visitor));
-                        await ctx.dispatch(VisitorActions.setVisitorLogged(true));
                         await send(MessageType.SYSTEM, "Created new visitor.");
                     } catch(e) {
                         await send(MessageType.SYSTEM, `Error: ${e.errors.message}`);

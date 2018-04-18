@@ -5,7 +5,7 @@ import * as VisitorActions from "../actions/visitor.actions";
 import { getVisitor, login, register } from "../api/visitor.api";
 
 import { printMessage, clearMessages, setPrompt, setInputMode } from "../actions/log.actions";
-import { joinNode, leaveNode } from "../actions/node.actions";
+import { joinNode, leaveNode, showVisitorsList } from "../actions/node.actions";
 
 import { Visitor } from "../models/visitor.model";
 import { WebCommandContext, Command } from "../models/command.model";
@@ -79,8 +79,8 @@ export const parseCommand = (raw: string): Command => {
 
 export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> => {
     const send = async (type: MessageType, content: string) => await ctx.dispatch(printMessage({ type, content }));
-    const visitor = ctx.getState().visitor.visitor;
-    const node = ctx.getState().node.node;
+    const visitor_state = ctx.getState().visitor;
+    const node_state = ctx.getState().node;
 
     try {
         switch(ctx.command.name) {
@@ -102,16 +102,16 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                 break;
             }
             case "info": {
-                if(!visitor) throw new Error("You must be logged in to use this command.");
-                await send(MessageType.SYSTEM, `Your Visitor ID is ${visitor.id}`);
-                await send(MessageType.SYSTEM, `Your name is ${visitor.name}`);
-                await send(MessageType.SYSTEM, `Your email address is ${visitor.email}`);
+                if(!visitor_state.visitor) throw new Error("You must be logged in to use this command.");
+                await send(MessageType.SYSTEM, `Your Visitor ID is ${visitor_state.visitor.id}`);
+                await send(MessageType.SYSTEM, `Your name is ${visitor_state.visitor.name}`);
+                await send(MessageType.SYSTEM, `Your email address is ${visitor_state.visitor.email}`);
                 break;
             }
             case "join": {
                 const ctx_node = ctx.command.args[0];
                 if(!ctx_node) throw new Error("A node name must be specified in order to join.");
-                if(node && node.name === ctx_node) throw new Error("You are already in that node. Type /leave to leave this node.");
+                if(node_state.node && node_state.node.name === ctx_node) throw new Error("You are already in that node. Type /leave to leave this node.");
                 await ctx.dispatch(joinNode(ctx_node));
                 history.pushState(null, ctx_node, `${location.origin}/${ctx_node}`);
                 break;
@@ -124,7 +124,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
             case "login": {
                 const name = ctx.command.args[0];
                 if(!name) throw new Error("A name must be specified in order to login.");
-                if(visitor) throw new Error("You are already logged in.");
+                if(visitor_state.visitor) throw new Error("You are already logged in.");
                 const ctx_visitor = await getVisitor(name);
                 if(!ctx_visitor) throw new Error("Visitor does not exist.");
                 await send(MessageType.SYSTEM, "Input visitor password:");
@@ -145,7 +145,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
             case "register": {
                 const name = ctx.command.args[0];
                 if(!name) throw new Error("A name must be specified in order to create a visitor.");
-                if(visitor) throw new Error("You are already logged in.");
+                if(visitor_state.visitor) throw new Error("You are already logged in.");
                 const ctx_visitor = await getVisitor(name);
                 if(ctx_visitor) throw new Error("Visitor already exists.");
                 await send(MessageType.SYSTEM, "Input new visitor password:");
@@ -165,12 +165,16 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                 break;
             }
             case "logout": {
-                if(!visitor) throw new Error("You are not logged in.");
+                if(!visitor_state.visitor) throw new Error("You are not logged in.");
                 await ctx.dispatch(VisitorActions.logOutVisitor());
                 await send(MessageType.SYSTEM, "Logged out.");
                 break;
             }
             case "node": {
+                break;
+            }
+            case "visitors": {
+                await ctx.dispatch(showVisitorsList());
                 break;
             }
             default: {

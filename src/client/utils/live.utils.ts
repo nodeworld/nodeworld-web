@@ -4,6 +4,8 @@ import { printMessage } from "../actions/log.actions";
 import { MessageType, Message } from "../models/message.model";
 
 import { store } from "../store";
+import { Visitor } from "../models/visitor.model";
+import { setNodeVisitors, showVisitorsList } from "../actions/node.actions";
 
 export const manageLiveNodeConnection = (socket: SocketIOClient.Socket, dispatch: Function) => {
     const send = (message: Partial<Message>) => dispatch(printMessage(message));
@@ -12,6 +14,14 @@ export const manageLiveNodeConnection = (socket: SocketIOClient.Socket, dispatch
         const visitor = store.getState().visitor.visitor;
         if(visitor && message.author_id === visitor.id) return;
         send(message);
+    });
+
+    socket.on("visitors", async (visitors: Visitor[]) => {
+        await dispatch(setNodeVisitors(visitors));
+    });
+
+    socket.on("joined", async () => {
+        await dispatch(showVisitorsList());
     });
 
     socket.on("disconnect", (reason: any) => {

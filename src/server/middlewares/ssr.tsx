@@ -5,14 +5,13 @@ import { genHtml } from "../utils/gen-html";
 import { renderToString } from "react-dom/server";
 import { StaticRouter } from "react-router";
 
-const App = require("../../../dist/client.bundle.js").default;
-
 export const renderDevPage = (req: Request, res: Response, next: NextFunction) => {
     const html = genHtml();
     res.send(html);
 }
 
 export const renderProdPage = (req: Request, res: Response, next: NextFunction) => {
+    const App = require("../../../dist/client.bundle.js").default;
     const app = (
         <StaticRouter location={req.url}>
             <App/>

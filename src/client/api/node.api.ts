@@ -13,8 +13,9 @@ import { store } from "../store";
 declare const API_ENDPOINT: string;
 declare const LIVE_ENDPOINT: string;
 
-let socket = io(LIVE_ENDPOINT, { autoConnect: false, path: "/live", reconnectionAttempts: 3 });
-manageLiveNodeConnection(socket, (a: Action) => store.dispatch(a));
+//let socket = io(LIVE_ENDPOINT, { autoConnect: false, path: "/", reconnectionAttempts: 3 });
+//manageLiveNodeConnection(socket, (a: Action) => store.dispatch(a));
+let socket: SocketIOClient.Socket;
 
 export const getNode = async (name: string): Promise<Node> => {
     const data = await fetch(`${API_ENDPOINT}/nodes?name=${name}&limit=1`);
@@ -28,9 +29,13 @@ export const leaveNode = () => {
         socket.close();
 }
 
+// TODO: Scold socket.io devs for wasting hours of my sleep just to end up implementing a hacky solution to an easily-fixable problem
 export const joinNode = (name: string): void => {
-    socket.io.opts.query = { node: name };
-    socket.open();
+    socket = io(`${LIVE_ENDPOINT}/${name}`, { path: "/", reconnectionAttempts: 3 });
+    socket.on("connect", () => {
+        socket.removeAllListeners();
+        manageLiveNodeConnection(socket, (a: Action) => store.dispatch(a));
+    });
 }
 
 export const sendMessage = async (node_id: string, type: MessageType, content: string): Promise<Message> => {

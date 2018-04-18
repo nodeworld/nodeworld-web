@@ -75,6 +75,7 @@ export const sendMessage = (type: MessageType, content: string) => {
             if(!getState().visitor.visitor) throw new Error("You must be logged in to send messages. Type /login to login, or /register to create a new account.");
             const node = getState().node.node;
             if(!node) throw new Error("You must be in a node to send commands.");
+            if(!content.trim()) return;
             const message = await NodeAPI.sendMessage(node.id, type, content);
             await dispatch(addMessage(buildMessage(message)));
         } catch(e) {

@@ -61,6 +61,11 @@ export const Commands: CommandInfo = {
         usage: "/login [visitor name]",
         help: "Login to a visitor (account) in Nodeworld."
     },
+    visitors: {
+        name: "visitors",
+        usage: "/visitors",
+        help: "See who else is currently in the same node as you."
+    },
     node: {
         name: "node",
         usage: "/node",
@@ -87,7 +92,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
             case "help": {
                 const help_command = ctx.command.args[0];
                 if(!help_command) {
-                    await send(MessageType.SYSTEM, `Here are a list of local commands you can use: ${Object.keys(Commands).sort().join(", ")}`);
+                    await send(MessageType.SYSTEM, `Here are a list of local commands you can use: ${Object.keys(Commands).map(c => `/${c}`).sort().join(", ")}`);
                     await send(MessageType.SYSTEM, "For more information on a command, type /help [command name]");
                 } else {
                     if(!Commands.hasOwnProperty(help_command)) throw new Error("Could not find information on that command. Type /help for a list of commands");
@@ -171,6 +176,9 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                 break;
             }
             case "node": {
+                if(!node_state.node) throw new Error("You must be in a node to use this command.");
+                await send(MessageType.SYSTEM, `Node: ${node_state.node.name} (ID: ${node_state.node.id})`);
+                await send(MessageType.SYSTEM, `Greeting: ${node_state.node.greeting || "None"}`);
                 break;
             }
             case "visitors": {

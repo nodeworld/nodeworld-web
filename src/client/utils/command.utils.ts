@@ -15,26 +15,56 @@ import { NodeInputMode } from "../components/node/node-input";
 export interface CommandInfo {
     [key: string]: {
         name: string;
+        usage: string;
         help: string;
     }
 }
 
 export const Commands: CommandInfo = {
+    help: {
+        name: "help",
+        usage: "/help ?[command name]",
+        help: "Show a list of commands, and see detailed information on a specific command."
+    },
     ping: {
         name: "ping",
+        usage: "/ping",
         help: "Test local command feedback."
     },
     info: {
         name: "info",
+        usage: "/info",
         help: "Retrieve your own information."
     },
     logout: {
         name: "logout",
+        usage: "/logout",
         help: "Log out."
     },
     join: {
         name: "join",
+        usage: "/join [node name]",
         help: "Join a different node."
+    },
+    leave: {
+        name: "leave",
+        usage: "/leave",
+        help: "Leave the current node you are in."
+    },
+    register: {
+        name: "register",
+        usage: "/register [new visitor name]",
+        help: "Register a new visitor (account) in Nodeworld."
+    },
+    login: {
+        name: "login",
+        usage: "/login [visitor name]",
+        help: "Login to a visitor (account) in Nodeworld."
+    },
+    node: {
+        name: "node",
+        usage: "/node",
+        help: "See detailed information about the node you are in."
     }
 }
 
@@ -54,10 +84,15 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
         switch(ctx.command.name) {
             case "help": {
                 const help_command = ctx.command.args[0];
-                if(Commands.hasOwnProperty(help_command))
-                    await send(MessageType.SYSTEM, Commands[help_command].help);
-                else
-                    await send(MessageType.SYSTEM, "Could not find information on that command. For a list of commands, type /commands");
+                if(!help_command) {
+                    await send(MessageType.SYSTEM, `Here are a list of local commands you can use: ${Object.keys(Commands).sort().join(", ")}`);
+                    await send(MessageType.SYSTEM, "For more information on a command, type /help [command name]");
+                } else {
+                    if(!Commands.hasOwnProperty(help_command)) throw "Could not find information on that command. Type /help for a list of commands";
+                    const cmd = Commands[help_command];
+                    await send(MessageType.SYSTEM, `"${cmd.name}" command. Usage: ${cmd.usage}`);
+                    await send(MessageType.SYSTEM, cmd.help);
+                }
                 break;
             }
             case "ping": {

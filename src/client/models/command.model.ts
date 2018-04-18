@@ -1,9 +1,10 @@
 import { Visitor } from "./visitor.model";
+import { CombinedReducerState } from "../reducers";
 
 export interface WebCommandContext {
     command: Command;
     dispatch: Function;
-    visitor: Visitor | null;
+    getState: () => CombinedReducerState
 }
 
 export interface Command {

@@ -73,8 +73,9 @@ export const sendMessage = (type: MessageType, content: string) => {
     return async (dispatch: Function, getState: () => CombinedReducerState) => {
         try {
             if(!getState().visitor.visitor) throw new Error("You must be logged in to send messages. Type /login to login, or /register to create a new account.");
-            const node_id = getState().node.node!.id;
-            const message = await NodeAPI.sendMessage(node_id, type, content);
+            const node = getState().node.node;
+            if(!node) throw new Error("You must be in a node to send commands.");
+            const message = await NodeAPI.sendMessage(node.id, type, content);
             await dispatch(addMessage(buildMessage(message)));
         } catch(e) {
             await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: `Error: ${e.message}` })));
@@ -83,10 +84,11 @@ export const sendMessage = (type: MessageType, content: string) => {
 }
 
 export const sendCommand = (content: string) => {
-    return async (dispatch: Function, getState: Function) => {
+    return async (dispatch: Function, getState: () => CombinedReducerState) => {
         try {
             const visitor = getState().visitor.visitor;
             const node = getState().node.node;
+            if(!node) throw new Error("You must be in a node to send commands.");
             const command = parseCommand(content);
             if(command.name === "me") {
                 if(!visitor) throw new Error("You must be logged in to use that command.");
@@ -94,7 +96,7 @@ export const sendCommand = (content: string) => {
                 await dispatch(sendMessage(MessageType.ACTION, me_action));
             } else {
                 await dispatch(addMessage(buildMessage({ type: MessageType.ACTION, name: visitor ? visitor.name : "anonymous", content })));
-                const local_success = await runLocalCommand({ dispatch, visitor, command });
+                const local_success = await runLocalCommand({ dispatch, getState, command });
                 if(!local_success) {
                     if(!visitor) throw new Error("You must be logged in to use non-local commands. Type /login to login, or /register to create a new account.");
                     await NodeAPI.runCommand(node["id"], command);

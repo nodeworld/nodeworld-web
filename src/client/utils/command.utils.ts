@@ -88,7 +88,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                     await send(MessageType.SYSTEM, `Here are a list of local commands you can use: ${Object.keys(Commands).sort().join(", ")}`);
                     await send(MessageType.SYSTEM, "For more information on a command, type /help [command name]");
                 } else {
-                    if(!Commands.hasOwnProperty(help_command)) throw "Could not find information on that command. Type /help for a list of commands";
+                    if(!Commands.hasOwnProperty(help_command)) throw new Error("Could not find information on that command. Type /help for a list of commands");
                     const cmd = Commands[help_command];
                     await send(MessageType.SYSTEM, `"${cmd.name}" command. Usage: ${cmd.usage}`);
                     await send(MessageType.SYSTEM, cmd.help);
@@ -100,7 +100,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                 break;
             }
             case "info": {
-                if(!ctx.visitor) throw "You must be logged in to use this command.";
+                if(!ctx.visitor) throw new Error("You must be logged in to use this command.");
                 await send(MessageType.SYSTEM, `Your Visitor ID is ${ctx.visitor.id}`);
                 await send(MessageType.SYSTEM, `Your name is ${ctx.visitor.name}`);
                 await send(MessageType.SYSTEM, `Your email address is ${ctx.visitor.email}`);
@@ -108,7 +108,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
             }
             case "join": {
                 const node = ctx.command.args[0];
-                if(!node) throw "A node name must be specified in order to join.";
+                if(!node) throw new Error("A node name must be specified in order to join.");
                 await ctx.dispatch(joinNode(node));
                 history.pushState(null, node, `${location.origin}/${node}`);
                 break;
@@ -119,10 +119,10 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
             }
             case "login": {
                 const name = ctx.command.args[0];
-                if(!name) throw "A name must be specified in order to login.";
-                if(ctx.visitor) throw "You are already logged in.";
+                if(!name) throw new Error("A name must be specified in order to login.");
+                if(ctx.visitor) throw new Error("You are already logged in.");
                 const ctx_visitor = await getVisitor(name);
-                if(!ctx_visitor) throw "Visitor does not exist.";
+                if(!ctx_visitor) throw new Error("Visitor does not exist.");
                 await send(MessageType.SYSTEM, "Input visitor password:");
                 await ctx.dispatch(setInputMode(NodeInputMode.SECURE));
                 await ctx.dispatch(setPrompt("Input visitor password...", async (password: string) => {
@@ -131,7 +131,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                         await ctx.dispatch(VisitorActions.setVisitor(visitor));
                         await send(MessageType.SYSTEM, "Logged in.");
                     } catch(e) {
-                        await send(MessageType.SYSTEM, `Error: ${e.errors.message}`);
+                        await send(MessageType.SYSTEM, `Error: ${e.message}`);
                     } finally {
                         await ctx.dispatch(setInputMode(NodeInputMode.CHAT));
                     }
@@ -140,10 +140,10 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
             }
             case "register": {
                 const name = ctx.command.args[0];
-                if(!name) throw "A name must be specified in order to create a visitor.";
-                if(ctx.visitor) throw "You are already logged in.";
+                if(!name) throw new Error("A name must be specified in order to create a visitor.");
+                if(ctx.visitor) throw new Error("You are already logged in.");
                 const ctx_visitor = await getVisitor(name);
-                if(ctx_visitor) throw "Visitor already exists.";
+                if(ctx_visitor) throw new Error("Visitor already exists.");
                 await send(MessageType.SYSTEM, "Input new visitor password:");
                 await ctx.dispatch(setInputMode(NodeInputMode.SECURE));
                 await ctx.dispatch(setPrompt("Input new visitor password...", async (password: string) => {
@@ -153,7 +153,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                         await ctx.dispatch(VisitorActions.setVisitor(visitor));
                         await send(MessageType.SYSTEM, "Created new visitor.");
                     } catch(e) {
-                        await send(MessageType.SYSTEM, `Error: ${e.errors.message}`);
+                        await send(MessageType.SYSTEM, `Error: ${e.message}`);
                     } finally {
                         await ctx.dispatch(setInputMode(NodeInputMode.CHAT));
                     }
@@ -161,7 +161,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                 break;
             }
             case "logout": {
-                if(!ctx.visitor) throw "You are not logged in.";
+                if(!ctx.visitor) throw new Error("You are not logged in.");
                 await ctx.dispatch(VisitorActions.logOutVisitor());
                 await send(MessageType.SYSTEM, "Logged out.");
                 break;
@@ -176,7 +176,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
         
         return true;
     } catch(e) {
-        await send(MessageType.SYSTEM, `Error: ${e}`);
+        await send(MessageType.SYSTEM, `Error: ${e.message}`);
         return true;
     }
 }

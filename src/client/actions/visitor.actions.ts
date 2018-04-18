@@ -22,9 +22,8 @@ export const setLoggedInVisitor = () => {
     return async (dispatch: Function) => {
         try {
             const visitor = await VisitorAPI.me();
-            if(visitor.hasOwnProperty('errors')) throw (visitor as any)['errors'];
             await dispatch(setVisitor(visitor));
-        } catch(e) { console.error(e); }
+        } catch(e) { console.error(e.message); }
     }
 }
 
@@ -33,6 +32,6 @@ export const logOutVisitor = () => {
         try {
             await VisitorAPI.logout();
             await dispatch(setVisitor());
-        } catch(e) { console.error(e); }
+        } catch(e) { console.error(e.message); }
     }
 }

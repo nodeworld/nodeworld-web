@@ -6,8 +6,8 @@ import { Node } from "../models/node.model";
 import { Message, MessageType, buildMessage } from "../models/message.model";
 import { Visitor } from "../models/visitor.model";
 import { Command } from "../models/command.model";
-import { API_Error } from "../models/server.models";
 import { manageLiveNodeConnection } from "../utils/live.utils";
+import { handleError } from "../utils/api.utils";
 import { store } from "../store";
 import { addMessage } from "../actions/log.actions";
 
@@ -19,7 +19,7 @@ manageLiveNodeConnection(socket, (a: Action) => store.dispatch(a));
 
 export const getNode = async (name: string): Promise<Node> => {
     const data = await fetch(`${API_ENDPOINT}/nodes?name=${name}&limit=1`);
-    if(!data.ok) throw await data.json() as API_Error;
+    await handleError(data);
     const list = await data.json();
     return list.nodes[0];
 }
@@ -42,7 +42,7 @@ export const sendMessage = async (node_id: string, type: MessageType, content: s
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type, content })
     });
-    if(!data.ok) throw await data.json() as API_Error;
+    await handleError(data);
     return await data.json();
 }
 
@@ -53,13 +53,13 @@ export const runCommand = async (node_id: string, command: Command): Promise<nul
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: command.name, content: command.args.join(" ") })
     });
-    if(!data.ok) throw await data.json() as API_Error;
+    await handleError(data);
     return null;
 }
 
 export const getMessages = async (node_name: string): Promise<Message[]> => {
     const data = await fetch(`${API_ENDPOINT}/nodes/${node_name}/log`);
-    if(!data.ok) throw await data.json() as API_Error;
+    await handleError(data);
     const list = await data.json();
     return list.messages;
 }

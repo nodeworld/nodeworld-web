@@ -36,14 +36,12 @@ export const joinNode = (name: string) => {
     return async (dispatch: any, getState: () => CombinedReducerState) => {
         try {
             const node = await NodeApi.getNode(name);
-            if(getState().node.node)
-                await dispatch(leaveNode());
+            if(getState().node.node) await dispatch(leaveNode());
             await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: `Joining ${node.name}...` })));
             NodeApi.joinNode(name);
             dispatch(setNode(node));
         } catch(e) {
-            console.log(e);
-            await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: `Error: ${e.errors.message}` })));
+            await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: `Error: ${e.message}` })));
         }
     }
 }

@@ -72,12 +72,12 @@ export const resolvePrompt = (): ResolvePromptAction => ({ type: LogActionType.R
 export const sendMessage = (type: MessageType, content: string) => {
     return async (dispatch: Function, getState: () => CombinedReducerState) => {
         try {
-            if(!getState().visitor.visitor) throw { errors: { message: "You must be logged in to send messages. Type /login to login, or /register to create a new account." }};
+            if(!getState().visitor.visitor) throw new Error("You must be logged in to send messages. Type /login to login, or /register to create a new account.");
             const node_id = getState().node.node!.id;
             const message = await NodeAPI.sendMessage(node_id, type, content);
-            dispatch(addMessage(buildMessage(message)));
+            await dispatch(addMessage(buildMessage(message)));
         } catch(e) {
-            await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: `Error: ${e.errors.message}` })));
+            await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: `Error: ${e.message}` })));
         }
     }
 }
@@ -89,31 +89,17 @@ export const sendCommand = (content: string) => {
             const node = getState().node.node;
             const command = parseCommand(content);
             if(command.name === "me") {
-                if(!visitor) {
-                    await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: "You must be logged in to use this command." })));
-                    return;
-                }
+                if(!visitor) throw new Error("You must be logged in to use that command.");
                 const me_action = command.args.join(" ");
                 await dispatch(sendMessage(MessageType.ACTION, me_action));
             } else {
                 await dispatch(addMessage(buildMessage({ type: MessageType.ACTION, name: visitor ? visitor.name : "anonymous", content })));
                 const local_success = await runLocalCommand({ dispatch, visitor, command });
-                if(!local_success)
-                    if(visitor)
-                        await NodeAPI.runCommand(node["id"], command);
-                    else
-                        throw { errors: { message: "You must be logged in to use non-local commands. Type /login to login, or /register to create a new account." } };
+                if(!local_success) {
+                    if(!visitor) throw new Error("You must be logged in to use non-local commands. Type /login to login, or /register to create a new account.");
+                    await NodeAPI.runCommand(node["id"], command);
+                }
             }
-        } catch(e) { await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: `Error: ${e.errors.message}` }))); }
-    }
-}
-
-export const addRecentMessages = () => {
-    return async (dispatch: Function, getState: Function) => {
-        try {
-            const node_id = getState().node.node.id;
-            const messages = await NodeAPI.getMessages(node_id);
-            messages.forEach(message => dispatch(addMessage(message)));
-        } catch(e) { console.error(e); }
+        } catch(e) { await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: `Error: ${e.message}` }))); }
     }
 }

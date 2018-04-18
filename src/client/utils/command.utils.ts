@@ -118,6 +118,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
             }
             case "leave": {
                 await ctx.dispatch(leaveNode());
+                history.pushState(null, "", location.origin);
                 break;
             }
             case "login": {

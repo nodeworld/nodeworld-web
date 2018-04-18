@@ -88,7 +88,6 @@ export const sendCommand = (content: string) => {
         try {
             const visitor = getState().visitor.visitor;
             const node = getState().node.node;
-            if(!node) throw new Error("You must be in a node to send commands.");
             const command = parseCommand(content);
             if(command.name === "me") {
                 if(!visitor) throw new Error("You must be logged in to use that command.");
@@ -99,7 +98,7 @@ export const sendCommand = (content: string) => {
                 const local_success = await runLocalCommand({ dispatch, getState, command });
                 if(!local_success) {
                     if(!visitor) throw new Error("You must be logged in to use non-local commands. Type /login to login, or /register to create a new account.");
-                    await NodeAPI.runCommand(node["id"], command);
+                    if(node) await NodeAPI.runCommand(node["id"], command);
                 }
             }
         } catch(e) { await dispatch(addMessage(buildMessage({ type: MessageType.SYSTEM, content: `Error: ${e.message}` }))); }

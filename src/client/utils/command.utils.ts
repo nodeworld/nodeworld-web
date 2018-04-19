@@ -122,6 +122,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                 break;
             }
             case "leave": {
+                if(!node_state.node) throw new Error("You are not in a node.");
                 await ctx.dispatch(leaveNode());
                 history.pushState(null, "", location.origin);
                 break;

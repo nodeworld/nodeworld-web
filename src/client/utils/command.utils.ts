@@ -130,14 +130,16 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
             }
             case "login": {
                 const name = ctx.command.args[0];
-                if(!name) throw new Error("A name must be specified in order to login.");
                 if(visitor_state.visitor) throw new Error("You are already logged in.");
+                if(node_state.node) throw new Error("To log in, you must be outside of a node first. Type /leave to leave the current node.");
+                if(!name) throw new Error("A name must be specified in order to login.");
                 const ctx_visitor = await getVisitor(name);
                 if(!ctx_visitor) throw new Error("Visitor does not exist.");
                 await send(MessageType.SYSTEM, "Input visitor password:");
                 await ctx.dispatch(setInputMode(NodeInputMode.SECURE));
                 await ctx.dispatch(setPrompt("Input visitor password...", async (password: string) => {
                     try {
+                        if(ctx.getState().node.node) throw new Error("You must be outside of a node to log in.");
                         const visitor = await login({ name, password });
                         await ctx.dispatch(VisitorActions.setVisitor(visitor));
                         await send(MessageType.SYSTEM, "Logged in.");
@@ -152,8 +154,8 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
             }
             case "register": {
                 const name = ctx.command.args[0];
-                if(!name) throw new Error("A name must be specified in order to create a visitor.");
                 if(visitor_state.visitor) throw new Error("You are already logged in.");
+                if(!name) throw new Error("A name must be specified in order to create a visitor.");
                 const ctx_visitor = await getVisitor(name);
                 if(ctx_visitor) throw new Error("Visitor already exists.");
                 await send(MessageType.SYSTEM, "Input new visitor password:");
@@ -161,9 +163,13 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                 await ctx.dispatch(setPrompt("Input new visitor password...", async (password: string) => {
                     try {
                         await register({ name, password });
-                        const visitor = await login({ name, password });
-                        await ctx.dispatch(VisitorActions.setVisitor(visitor));
                         await send(MessageType.SYSTEM, "Created new visitor.");
+                        if(!ctx.getState().node.node) {
+                            const visitor = await login({ name, password });
+                            await ctx.dispatch(VisitorActions.setVisitor(visitor));
+                        } else {
+                            await send(MessageType.SYSTEM, "To login, you must be outside of a node first. Type /leave to leave the current node.");
+                        }
                     } catch(e) {
                         await send(MessageType.SYSTEM, `Error: ${e.message}`);
                     } finally {
@@ -174,6 +180,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
             }
             case "logout": {
                 if(!visitor_state.visitor) throw new Error("You are not logged in.");
+                if(node_state.node) throw new Error("To log out, you must be outside of a node first. Type /leave to leave the current node.");
                 await ctx.dispatch(VisitorActions.logOutVisitor());
                 await send(MessageType.SYSTEM, "Logged out.");
                 if(socket.connected) socket.emit("logout");

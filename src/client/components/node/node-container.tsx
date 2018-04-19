@@ -52,10 +52,12 @@ class NodeContainer extends React.Component<NodeContainerProps> {
 
     async componentDidMount() {
         const nodeName = (this.props as any).match.params.node;
-        if(nodeName)
-            this.props.joinNode(nodeName);
-        else
+        if(nodeName) {
+            await this.props.joinNode(nodeName);
+            if(!this.props.node.node) window.location.href = "/";
+        } else {
             this.props.systemMessage("You are currently in space. To join a node, type /join [node]");
+        }
     }
 
     async resolveMessage(message: string) {

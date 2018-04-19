@@ -25,7 +25,7 @@ export const setLoggedInVisitor = () => {
         try {
             const visitor = await VisitorAPI.me();
             await dispatch(setVisitor(visitor));
-        } catch(e) { dispatch(printSystemMessage(`Error: ${e.message}`)); }
+        } catch(e) { }
     }
 }
 

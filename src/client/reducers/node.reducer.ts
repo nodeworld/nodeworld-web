@@ -16,7 +16,10 @@ export interface NodeReducerState {
 export const NodeReducer = (state: NodeReducerState = initialState, action: NodeAction) => {
     switch(action.type) {
         case NodeActionType.SetNode:
-            return Object.assign({}, state, { node: { ...action.node, visitors: [] } })
+            if(action.node === undefined)
+                return Object.assign({}, state, { node: undefined });
+            else
+                return Object.assign({}, state, { node: { ...action.node, visitors: [] } })
         case NodeActionType.SetNodeError:
             console.error(action.message);
             return state;

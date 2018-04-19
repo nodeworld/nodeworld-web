@@ -15,7 +15,7 @@ declare const LIVE_ENDPOINT: string;
 
 //let socket = io(LIVE_ENDPOINT, { autoConnect: false, path: "/", reconnectionAttempts: 3 });
 //manageLiveNodeConnection(socket, (a: Action) => store.dispatch(a));
-let socket: SocketIOClient.Socket;
+export let socket: SocketIOClient.Socket;
 
 export const getNode = async (name: string): Promise<Node> => {
     const data = await fetch(`${API_ENDPOINT}/nodes?name=${name}&limit=1`);

@@ -3,6 +3,7 @@ import { Map } from "immutable";
 import * as VisitorActions from "../actions/visitor.actions";
 
 import { getVisitor, login, register } from "../api/visitor.api";
+import { socket } from "../api/node.api";
 
 import { printMessage, clearMessages, setPrompt, setInputMode } from "../actions/log.actions";
 import { joinNode, leaveNode, showVisitorsList } from "../actions/node.actions";
@@ -140,6 +141,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                         const visitor = await login({ name, password });
                         await ctx.dispatch(VisitorActions.setVisitor(visitor));
                         await send(MessageType.SYSTEM, "Logged in.");
+                        if(socket.connected) socket.emit("login");
                     } catch(e) {
                         await send(MessageType.SYSTEM, `Error: ${e.message}`);
                     } finally {
@@ -174,6 +176,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                 if(!visitor_state.visitor) throw new Error("You are not logged in.");
                 await ctx.dispatch(VisitorActions.logOutVisitor());
                 await send(MessageType.SYSTEM, "Logged out.");
+                if(socket.connected) socket.emit("logout");
                 break;
             }
             case "node": {

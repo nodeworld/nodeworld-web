@@ -53,11 +53,13 @@ export const showVisitorsList = () => {
             if(node.visitors.length > 1) {
                 const names = node.visitors.map(v => visitor && visitor.id === v.id ? `${v.name} (you)` : v.name).sort().join(", ");
                 dispatch(printSystemMessage(`There are ${node.visitors.length} visitors in this node: ${names}`));
-            } else {
+            } else if(node.visitors.length === 1) {
                 if(visitor && visitor.id === node.visitors[0].id)
                     dispatch(printSystemMessage("You are the only visitor in this node."));
                 else
                     dispatch(printSystemMessage(`There is 1 visitor in this node: ${node.visitors[0].name}`));
+            } else {
+                dispatch(printSystemMessage("There are no visitors in this node."));
             }
         } catch(e) {
             dispatch(printSystemMessage(`Error: ${e.message}`));

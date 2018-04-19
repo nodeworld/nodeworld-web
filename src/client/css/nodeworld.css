@@ -53,6 +53,11 @@ button.node-form-input {
     align-items: center;
 }
 
+.node-input-container.node-input-container-secure {
+    background-color: #000;
+    color: #fff;
+}
+
 .node-log {
     overflow: auto;
 }

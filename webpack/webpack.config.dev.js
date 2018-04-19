@@ -7,12 +7,13 @@ module.exports = {
     entry: [
         "babel-polyfill",
         "webpack-hot-middleware/client",
-        "./main.tsx"
+        "./store.ts",
+        "./main.tsx",
     ],
     devtool: "inline-source-map",
     output: {
         path: path.resolve(__dirname, "../dist"),
-        filename: "[name].bundle.js"
+        filename: "main.bundle.js"
     },
     resolve: {
         extensions: [".ts", ".tsx", ".js"]

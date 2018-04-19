@@ -1,10 +1,18 @@
 import { Visitor } from "../models/visitor.model";
 import { LoginData } from "../models/auth.model";
-import { API_Error } from "../models/server.models";
+
+import { handleError } from "../utils/api.utils";
 
 declare const API_ENDPOINT: string;
 
-export const register = async (login: LoginData): Promise<Visitor> => {
+export const getVisitor = async (name: string): Promise<Visitor> => {
+    const data = await fetch(`${API_ENDPOINT}/visitors?name=${name}&limit=1`);
+    await handleError(data);
+    const list = (await data.json()).visitors;
+    return list[0];
+}
+
+export const register = async (login: LoginData): Promise<{ visitor: Visitor, node: Node }> => {
     const data = await fetch(`${API_ENDPOINT}/visitors`, {
         method: "POST",
         credentials: "include",
@@ -13,7 +21,7 @@ export const register = async (login: LoginData): Promise<Visitor> => {
         },
         body: JSON.stringify(login)
     });
-    if(!data.ok) throw await data.json() as API_Error;
+    await handleError(data);
     return await data.json();
 }
 
@@ -26,13 +34,13 @@ export const login = async (login: LoginData): Promise<Visitor> => {
         },
         body: JSON.stringify(login)
     });
-    if(!data.ok) throw await data.json() as API_Error;
+    await(handleError(data));
     return await data.json();
 }
 
 export const logout = async (): Promise<null> => {
     const data = await fetch(`${API_ENDPOINT}/visitors/logout`, { credentials: "include" });
-    if(!data.ok) throw await data.json();
+    await(handleError(data));
     return null;
 }
 
@@ -40,6 +48,6 @@ export const me = async (): Promise<Visitor> => {
     const data = await fetch(`${API_ENDPOINT}/visitors/me`, {
         credentials: "include"
     });
-    if(!data.ok) throw await data.json() as API_Error;
+    await(handleError(data));
     return await data.json();
 }

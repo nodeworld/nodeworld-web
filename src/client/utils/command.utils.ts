@@ -60,7 +60,7 @@ export const Commands: CommandInfo = {
     login: {
         name: "login",
         usage: "/login [visitor name]",
-        help: "Login to a visitor (account) in Nodeworld."
+        help: "Log in to a visitor (account) in Nodeworld."
     },
     visitors: {
         name: "visitors",
@@ -132,7 +132,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                 const name = ctx.command.args[0];
                 if(visitor_state.visitor) throw new Error("You are already logged in.");
                 if(node_state.node) throw new Error("To log in, you must be outside of a node first. Type /leave to leave the current node.");
-                if(!name) throw new Error("A name must be specified in order to login.");
+                if(!name) throw new Error("A name must be specified in order to log in.");
                 const ctx_visitor = await getVisitor(name);
                 if(!ctx_visitor) throw new Error("Visitor does not exist.");
                 await send(MessageType.SYSTEM, "Input visitor password:");
@@ -168,7 +168,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                             const visitor = await login({ name, password });
                             await ctx.dispatch(VisitorActions.setVisitor(visitor));
                         } else {
-                            await send(MessageType.SYSTEM, "To login, you must be outside of a node first. Type /leave to leave the current node.");
+                            await send(MessageType.SYSTEM, "To log in, you must be outside of a node first. Type /leave to leave the current node.");
                         }
                     } catch(e) {
                         await send(MessageType.SYSTEM, `Error: ${e.message}`);

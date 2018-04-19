@@ -76,7 +76,7 @@ export const printSystemMessage = (content: string) => printMessage({ type: Mess
 export const sendMessage = (type: MessageType, content: string) => {
     return async (dispatch: Function, getState: () => CombinedReducerState) => {
         try {
-            if(!getState().visitor.visitor) throw new Error("You must be logged in to send messages. Type /login to login, or /register to create a new account.");
+            if(!getState().visitor.visitor) throw new Error("You must be logged in to send messages. Type /login to log in, or /register to create a new account.");
             const node = getState().node.node;
             if(!node) throw new Error("You must be in a node to send commands.");
             if(!content.trim()) return;
@@ -100,7 +100,7 @@ export const sendCommand = (content: string) => {
                 await dispatch(printMessage({ type: MessageType.ACTION, name: visitor ? visitor.name : "anonymous", content }));
                 const local_success = await runLocalCommand({ dispatch, getState, command });
                 if(!local_success) {
-                    if(!visitor) throw new Error("You must be logged in to use non-local commands. Type /login to login, or /register to create a new account.");
+                    if(!visitor) throw new Error("You must be logged in to use non-local commands. Type /login to log in, or /register to create a new account.");
                     if(node) await NodeAPI.runCommand(node["id"], command);
                 }
             }

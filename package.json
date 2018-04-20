@@ -34,8 +34,10 @@
     "ts-node": "^5.0.0",
     "typescript": "^2.7.2",
     "uuid": "^3.2.1",
-    "webpack": "^4.1.0",
-    "webpack-cli": "^2.0.10"
+    "webpack": "^4.6.0",
+    "webpack-bundle-analyzer": "^2.11.1",
+    "webpack-cli": "^2.0.10",
+    "webpack-manifest-plugin": "^2.0.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^1.0.0",

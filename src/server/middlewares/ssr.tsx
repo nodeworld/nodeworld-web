@@ -12,11 +12,12 @@ export const renderDevPage = (req: Request, res: Response, next: NextFunction) =
 
 export const renderProdPage = (req: Request, res: Response, next: NextFunction) => {
     const App = require("../../../dist/client.bundle.js").default;
+    const manifest = require("../../../dist/manifest.json");
     const app = (
         <StaticRouter location={req.url}>
             <App/>
         </StaticRouter>
     )
     const markup = renderToString(app);
-    res.send(genHtml(markup));
+    res.send(genHtml({ main: manifest['main.js'], vendor: manifest['vendor.js'] }, markup));
 }

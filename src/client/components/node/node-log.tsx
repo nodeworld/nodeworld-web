@@ -10,7 +10,7 @@ export interface NodeLogProps {
 }
 
 export const shouldMessageShowMeta = (prevMsg: Message, currMsg: Message): boolean => {
-    if(prevMsg.name === currMsg.name) {
+    if(prevMsg.name === currMsg.name && prevMsg.type === currMsg.type) {
         const delta = Math.abs(new Date(prevMsg.sent_at).getMilliseconds() - new Date(currMsg.sent_at).getMilliseconds());
         if(delta > 300000)  // 5 minutes
             return true;

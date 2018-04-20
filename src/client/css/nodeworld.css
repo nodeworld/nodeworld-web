@@ -77,6 +77,18 @@ button.node-form-input {
     padding: 2px 8px;
 }
 
+.node-message .node-message-timestamp, .node-message .node-message-author {
+    flex-shrink: 1;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+.node-message .node-message-content {
+    flex-grow: 1;
+}
+
 .node-message .node-message-timestamp {
     margin-right: 4px;
     color: #999;

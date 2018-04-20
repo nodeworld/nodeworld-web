@@ -1,7 +1,14 @@
 import * as React from "react";
 import * as moment from "moment";
 
+import styled, { keyframes } from "styled-components";
+
 import { MessageType } from "../../models/message.model";
+
+const anim_slide = require("react-animations").slideInUp;
+const AnimatedLi = styled.li`
+    animation: 0.4s ${keyframes`${anim_slide}`};
+`;
 
 export interface NodeMessageProps {
     type: MessageType;
@@ -18,21 +25,21 @@ const renderMessage = (type: MessageType, name: string | null, content: string, 
     switch(type) {
         case MessageType.SYSTEM:
             return (
-                <li className="node-message node-message-system">
+                <AnimatedLi className="node-message node-message-system">
                     {timestamp}{cont}
-                </li>
+                </AnimatedLi>
             );
         case MessageType.CHAT:
             return (
-                <li className="node-message node-message-chat">
+                <AnimatedLi className="node-message node-message-chat">
                     {timestamp}{display_name}{cont}
-                </li>
+                </AnimatedLi>
             );
         case MessageType.ACTION:
             return (
-                <li className="node-message node-message-action">
+                <AnimatedLi className="node-message node-message-action">
                     {timestamp}{display_name}{cont}
-                </li>
+                </AnimatedLi>
             );
         default:
             return null;

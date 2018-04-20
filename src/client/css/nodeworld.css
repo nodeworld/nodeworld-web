@@ -102,6 +102,7 @@ button.node-form-input {
 
 .node-message .node-message-author {
     color: #000;
+    font-weight: bold;
     margin-right: 4px;
 }
 

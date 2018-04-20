@@ -9,7 +9,6 @@ import { MessageType } from "../../models/message.model";
 const anim_slide = require("react-animations").slideInUp;
 const AnimatedLi = styled.li`
     animation: 0.4s ${keyframes`${anim_slide}`};
-    display: flex;
 `;
 
 export interface NodeMessageProps {
@@ -26,7 +25,7 @@ export class NodeMessage extends React.Component<NodeMessageProps, {}> {
         const { name, content, type, sent_at, show_meta } = this.props;
         const timestamp = <span className={ classnames("node-message-timestamp", { hidden: !show_meta }) }>{moment(sent_at).format("h:mm A")}</span>;
         const display_name = name ? <span className={ classnames("node-message-author", { hidden: !show_meta }) }>{name}</span> : null;
-        const cont = <span className="node-message-content">{content}</span>;
+        const cont = <div className="node-message-content">{content}</div>;
         const message_class = classnames("node-message", {
             "node-message-system": type === MessageType.SYSTEM,
             "node-message-chat": type === MessageType.CHAT,

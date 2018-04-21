@@ -143,7 +143,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                         const visitor = await login({ name, password });
                         await ctx.dispatch(VisitorActions.setVisitor(visitor));
                         await send(MessageType.SYSTEM, "Logged in.");
-                        if(socket.connected) socket.emit("login");
+                        if(socket && socket.connected) socket.emit("login");
                     } catch(e) {
                         await send(MessageType.SYSTEM, `Error: ${e.message}`);
                     } finally {

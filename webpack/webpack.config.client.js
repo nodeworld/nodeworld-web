@@ -15,7 +15,10 @@ const vendors = [
     "react-redux",
     "redux",
     "moment",
-    "socket.io-client"
+    "socket.io-client",
+    "classnames",
+    "react-animations",
+    "styled-components"
 ];
 
 module.exports = {

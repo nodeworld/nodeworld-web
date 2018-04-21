@@ -36,8 +36,10 @@ class NodeLog extends React.Component<NodeLogProps, {}> {
 
     render() {
         const { messages } = this.props;
+        let alt_color = false;
         const message_list = messages && messages.map((message: Message, i: number) => {
             const show_meta = i === 0 ? true : shouldMessageShowMeta(messages[i-1], message);
+            if(show_meta) alt_color = !alt_color;
             return (
                 <NodeMessage
                 key={message.id}
@@ -47,6 +49,7 @@ class NodeLog extends React.Component<NodeLogProps, {}> {
                 content={message.content}
                 sent_at={message.sent_at}
                 show_meta={show_meta}
+                alt_color={alt_color}
                 />
             );
         });

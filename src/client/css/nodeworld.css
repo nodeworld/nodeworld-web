@@ -110,7 +110,7 @@ button.node-form-input {
     color: #999;
 }
 
-.node-log .node-message:nth-child(odd) {
+.node-message.node-message-alt {
     background-color: #f5f5f5;
 }
 

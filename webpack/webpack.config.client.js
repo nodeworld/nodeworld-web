@@ -56,8 +56,8 @@ module.exports = {
     },
     plugins: [
         new webpack.DefinePlugin({
-            API_ENDPOINT: JSON.stringify(process.env.API_ENDPOINT) || JSON.stringify("api.nodeworld.io"),
-            LIVE_ENDPOINT: JSON.stringify(process.env.LIVE_ENDPOINT) || JSON.stringify("live.nodeworld.io")
+            API_ENDPOINT: JSON.stringify(process.env.API_ENDPOINT) || JSON.stringify("http://api.nodeworld.io"),
+            LIVE_ENDPOINT: JSON.stringify(process.env.LIVE_ENDPOINT) || JSON.stringify("http://live.nodeworld.io")
         }),
         new webpack.optimize.OccurrenceOrderPlugin(),
         new webpack.optimize.AggressiveMergingPlugin(),

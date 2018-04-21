@@ -183,7 +183,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                 if(node_state.node) throw new Error("To log out, you must be outside of a node first. Type /leave to leave the current node.");
                 await ctx.dispatch(VisitorActions.logOutVisitor());
                 await send(MessageType.SYSTEM, "Logged out.");
-                if(socket.connected) socket.emit("logout");
+                if(socket && socket.connected) socket.emit("logout");
                 break;
             }
             case "node": {

@@ -143,7 +143,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                         const visitor = await login({ name, password });
                         await ctx.dispatch(VisitorActions.setVisitor(visitor));
                         await send(MessageType.SYSTEM, "Logged in.");
-                        if(socket.connected) socket.emit("login");
+                        if(socket && socket.connected) socket.emit("login");
                     } catch(e) {
                         await send(MessageType.SYSTEM, `Error: ${e.message}`);
                     } finally {
@@ -183,7 +183,7 @@ export const runLocalCommand = async (ctx: WebCommandContext): Promise<boolean> 
                 if(node_state.node) throw new Error("To log out, you must be outside of a node first. Type /leave to leave the current node.");
                 await ctx.dispatch(VisitorActions.logOutVisitor());
                 await send(MessageType.SYSTEM, "Logged out.");
-                if(socket.connected) socket.emit("logout");
+                if(socket && socket.connected) socket.emit("logout");
                 break;
             }
             case "node": {

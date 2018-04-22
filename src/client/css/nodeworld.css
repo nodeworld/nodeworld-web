@@ -77,6 +77,24 @@ button.node-form-input {
     padding: 2px 8px;
 }
 
+.hidden {
+    visibility: hidden;
+}
+
+.node-message {
+    display: flex;
+}
+
+.node-message .node-message-author, .node-message .node-message-timestamp {
+    flex-shrink: 0;
+}
+
+.node-message .node-message-content {
+    overflow-wrap: break-word;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
 .node-message .node-message-timestamp {
     margin-right: 4px;
     color: #999;
@@ -84,6 +102,7 @@ button.node-form-input {
 
 .node-message .node-message-author {
     color: #000;
+    font-weight: bold;
     margin-right: 4px;
 }
 
@@ -91,7 +110,7 @@ button.node-form-input {
     color: #999;
 }
 
-.node-log .node-message:nth-child(odd) {
+.node-message.node-message-alt {
     background-color: #f5f5f5;
 }
 

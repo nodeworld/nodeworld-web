@@ -61,6 +61,8 @@
     "@types/webpack": "^4.0.0",
     "@types/webpack-dev-middleware": "^2.0.0",
     "@types/webpack-hot-middleware": "^2.16.2",
+    "tslint": "^5.9.1",
+    "tslint-config-airbnb": "^5.8.0",
     "webpack-dev-middleware": "^3.0.1",
     "webpack-hot-middleware": "^2.21.2"
   },
